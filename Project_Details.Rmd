@@ -1,0 +1,30 @@
+---
+title: "Climate_Change"
+author: "Slavoljub Petkovic"
+date: "May 21, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+This project is meant to shed light on several questions related to climate changes. I will be using set of data from Kaggle.com which contains four files with temperature details in period of time between 1850 and 2013:
+
+1. Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
+2. Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
+3. Global Land Temperatures By Major City (GlobalLandTemperaturesByMajorCity.csv)
+4. Global Land Temperatures By City (GlobalLandTemperaturesByCity.csv)
+
+[Data can be located here] (https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data)
+
+In this research, I will attempt to answer few questions below:
+
+1. Does the rate of change over the continent correlate with changes over the states around the world?
+2. What are the top 5 hottest and coldest cities on the world?
+3. What kind of climate we can expect in next 5 years, 10 years, 50 years and 100 years based on predictive analysis?
+4. Is there a active global warming?
+
+I will be providing the analysis that might include dynamic graphs and charts with short explanation of what each of them means and why is it important for us.
