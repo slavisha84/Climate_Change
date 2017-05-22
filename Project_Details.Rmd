@@ -13,18 +13,70 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This project is meant to shed light on several questions related to climate changes. I will be using set of data from Kaggle.com which contains four files with temperature details in period of time between 1850 and 2013:
 
-1. Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
-2. Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
-3. Global Land Temperatures By Major City (GlobalLandTemperaturesByMajorCity.csv)
-4. Global Land Temperatures By City (GlobalLandTemperaturesByCity.csv)
+1. Global Temperatures (GlobalTemperatures.csv)
+2. Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
+3. Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
+4. Global Land Temperatures by Major City (GlobalLandTemperaturesByMajorCity.csv)
 
 [Data can be located here] (https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data)
 
 In this research, I will attempt to answer few questions below:
 
 1. Does the rate of change over the continent correlate with changes over the states around the world?
-2. What are the top 5 hottest and coldest cities on the world?
+2. What are the top 5 hottest and top 5 coldest major cities in the world?
 3. What kind of climate we can expect in next 5 years, 10 years, 50 years and 100 years based on predictive analysis?
-4. Is there a active global warming?
+4. Is there an active global warming?
 
 I will be providing the analysis that might include dynamic graphs and charts with short explanation of what each of them means and why is it important for us.
+
+## Data Wrangling
+
+* Removing irrelevant columns and rows
+* Standardizing Column Names
+* Exploring the data for missing values and NA
+* Formatting values for consistency
+* Explore outliers with min and max to see the extremes 
+* Merging data to streamline the analysis flow
+
+#### Global Temperatures - (GlobalTemperatures.csv)
+This data set contains next columns: dt, LandAverageTemperature, LandAverageTemperatureUncertainty, LandMaxTemperature, LandMaxTemperatureUncertainty, LandMinTemperature, LandMinTemperatureUncertainty, LandAndOceanAverageTemperature, LandAndOceanAverageTemperatureUncertainty
+
+* Data prior 1850 to be removed. 
+* dt - dates to be standardized.
+
+```{r TempGlobal}
+
+```
+
+#### Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
+This set contains next columns: dt, AverageTemperature, AverageTemperautreUncertanity and Country.
+
+* Data prior 1850 to be removed.
+* dt - dates to be standardized. 
+* AverageTemperature and AverageTemperautreUncertanity - missing values to be populated with average values for country for which values are missing.  
+
+```{r TempByCountry}
+
+```
+
+#### Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
+This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, State,	Country.
+* dt - dates to be standardized.
+* AverageTemperature and AverageTemperatureUncertainty missing the values for some of the year a and will be populated with average values for state for which values are missing.
+
+```{r TempByState}
+
+```
+
+#### Global Land Temperatures by Major City (GlobalLandTemperaturesByMajorCity.csv)
+This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, City, Country, Latitude, Longitude.
+
+* Data prior 1850 to be removed.
+* dt - dates to be standardized. 
+* AverageTemperature and AverageTemperautreUncertanity - missing values to be populated with average values for city for which values are     missing.
+
+```{r TempByCity}
+
+```
+
+#### Combining the data in to one data set
