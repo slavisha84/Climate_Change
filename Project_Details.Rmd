@@ -64,7 +64,7 @@ This set contains next columns: dt, AverageTemperature, AverageTemperatureUncert
 * dt - dates to be standardized.
 * AverageTemperature and AverageTemperatureUncertainty missing the values for some of the year a and will be populated with average values for state for which values are missing.
 
-```{r TempByState}
+```{r TempByStates}
 
 ```
 
