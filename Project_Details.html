@@ -153,33 +153,79 @@ $(document).ready(function () {
 <li>Explore outliers with min and max to see the extremes</li>
 <li>Merging data to streamline the analysis flow</li>
 </ul>
+<pre class="r"><code>library(lubridate)</code></pre>
+<pre><code>## 
+## Attaching package: 'lubridate'</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     date</code></pre>
+<pre class="r"><code>library(magrittr)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:lubridate':
+## 
+##     intersect, setdiff, union</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(tidyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'tidyr'</code></pre>
+<pre><code>## The following object is masked from 'package:magrittr':
+## 
+##     extract</code></pre>
+<pre class="r"><code>library(readr)</code></pre>
 <div id="global-temperatures---globaltemperatures.csv" class="section level4">
 <h4>Global Temperatures - (GlobalTemperatures.csv)</h4>
 <p>This data set contains next columns: dt, LandAverageTemperature, LandAverageTemperatureUncertainty, LandMaxTemperature, LandMaxTemperatureUncertainty, LandMinTemperature, LandMinTemperatureUncertainty, LandAndOceanAverageTemperature, LandAndOceanAverageTemperatureUncertainty</p>
 <ul>
-<li>Data prior 1850 to be removed.</li>
-<li>dt - dates to be standardized.</li>
+<li>Removing data prior 1850 to be removed.</li>
 </ul>
+<pre class="r"><code># Loading data set
+GlobalTemperatures &lt;- read_csv(&quot;C:/GIT/R/Climate_Change/Data_Source/GlobalTemperatures.csv&quot;) </code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   dt = col_date(format = &quot;&quot;),
+##   LandAverageTemperature = col_double(),
+##   LandAverageTemperatureUncertainty = col_double(),
+##   LandMaxTemperature = col_character(),
+##   LandMaxTemperatureUncertainty = col_character(),
+##   LandMinTemperature = col_character(),
+##   LandMinTemperatureUncertainty = col_character(),
+##   LandAndOceanAverageTemperature = col_character(),
+##   LandAndOceanAverageTemperatureUncertainty = col_character()
+## )</code></pre>
+<pre class="r"><code># Filtering data range
+GlobalTemperatures_Mod &lt;- filter(GlobalTemperatures, dt&gt;= &quot;1849-12-31&quot;)                      
+# Saving edited file
+write.table(GlobalTemperatures_Mod, &quot;Global_Temp.csv&quot;)                                       
+# Removing original data frame
+rm(GlobalTemperatures)                                                                       </code></pre>
 </div>
 <div id="global-average-land-temperature-by-country-globallandtemperaturesbycountry.csv" class="section level4">
 <h4>Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)</h4>
 <p>This set contains next columns: dt, AverageTemperature, AverageTemperautreUncertanity and Country.</p>
 <ul>
 <li>Data prior 1850 to be removed.</li>
-<li>dt - dates to be standardized.</li>
 <li>AverageTemperature and AverageTemperautreUncertanity - missing values to be populated with average values for country for which values are missing.</li>
 </ul>
 </div>
 <div id="global-average-land-temperature-by-state-globallandtemperaturesbystate.csv" class="section level4">
 <h4>Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)</h4>
-<p>This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, State, Country. * dt - dates to be standardized. * AverageTemperature and AverageTemperatureUncertainty missing the values for some of the year a and will be populated with average values for state for which values are missing.</p>
+<p>This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, State, Country.</p>
+<ul>
+<li>AverageTemperature and AverageTemperatureUncertainty missing the values for some of the year a and will be populated with average values for state for which values are missing.</li>
+</ul>
 </div>
 <div id="global-land-temperatures-by-major-city-globallandtemperaturesbymajorcity.csv" class="section level4">
 <h4>Global Land Temperatures by Major City (GlobalLandTemperaturesByMajorCity.csv)</h4>
 <p>This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, City, Country, Latitude, Longitude.</p>
 <ul>
 <li>Data prior 1850 to be removed.</li>
-<li>dt - dates to be standardized.</li>
 <li>AverageTemperature and AverageTemperautreUncertanity - missing values to be populated with average values for city for which values are missing.</li>
 </ul>
 </div>

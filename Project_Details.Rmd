@@ -38,45 +38,78 @@ I will be providing the analysis that might include dynamic graphs and charts wi
 * Explore outliers with min and max to see the extremes 
 * Merging data to streamline the analysis flow
 
+```{r ilibraries}
+library(lubridate)
+library(magrittr)
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+
 #### Global Temperatures - (GlobalTemperatures.csv)
 This data set contains next columns: dt, LandAverageTemperature, LandAverageTemperatureUncertainty, LandMaxTemperature, LandMaxTemperatureUncertainty, LandMinTemperature, LandMinTemperatureUncertainty, LandAndOceanAverageTemperature, LandAndOceanAverageTemperatureUncertainty
 
-* Data prior 1850 to be removed. 
-* dt - dates to be standardized.
+* Removing data prior 1850 to be removed. 
 
-```{r TempGlobal}
-
+```{r TempGlobal, message=TRUE}
+# Loading data set
+GlobalTemperatures <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalTemperatures.csv")
+View(GlobalTemperatures)
+# Filtering data range
+GlobalTemperatures_Mod <- filter(GlobalTemperatures, dt>= "1849-12-31")                      
+# Saving edited file
+write.table(GlobalTemperatures_Mod, "Global_Temp.csv")                                       
+# Removing original data frame
+rm(GlobalTemperatures)                                                                       
 ```
 
 #### Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
 This set contains next columns: dt, AverageTemperature, AverageTemperautreUncertanity and Country.
 
-* Data prior 1850 to be removed.
-* dt - dates to be standardized. 
-* AverageTemperature and AverageTemperautreUncertanity - missing values to be populated with average values for country for which values are missing.  
+* Removing data prior 1850 to be removed. 
 
 ```{r TempByCountry}
-
+# Loading data set
+GlobalLandTemperaturesByCountry <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByCountry.csv")
+View(GlobalLandTemperaturesByCountry)
+# Filtering data range
+GlobalLandTemperaturesByCountry_Mod <- filter(GlobalLandTemperaturesByCountry, dt>= "1849-12-31")
+# Saving edited file
+write.table(GlobalLandTemperaturesByCountry_Mod, "Global_Temp_Country.csv")                                       
+# Removing original data frame
+rm(GlobalLandTemperaturesByCountry)    
 ```
 
 #### Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
 This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, State,	Country.
-* dt - dates to be standardized.
-* AverageTemperature and AverageTemperatureUncertainty missing the values for some of the year a and will be populated with average values for state for which values are missing.
+
+* Removing data prior 1850 to be removed. 
 
 ```{r TempByStates}
-
+# Loading data set
+GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByState.csv")
+View(GlobalLandTemperaturesByState)
+# Filtering data range
+GlobalLandTemperaturesByState_Mod <- filter(GlobalLandTemperaturesByState, dt>= "1849-12-31")
+# Saving edited file
+write.table(GlobalLandTemperaturesByState_Mod, "Global_Temp_State.csv")                                       
+# Removing original data frame
+rm(GlobalLandTemperaturesByState)
 ```
 
 #### Global Land Temperatures by Major City (GlobalLandTemperaturesByMajorCity.csv)
 This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, City, Country, Latitude, Longitude.
 
-* Data prior 1850 to be removed.
-* dt - dates to be standardized. 
-* AverageTemperature and AverageTemperautreUncertanity - missing values to be populated with average values for city for which values are     missing.
+* Removing data prior 1850 to be removed. 
 
-```{r TempByCity}
-
+```{r TempByMajorCity}
+# Loading data set
+GlobalLandTemperaturesByMajorCity <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
+View(GlobalLandTemperaturesByMajorCity)
+# Filtering data range
+GlobalLandTemperaturesByMajorCity_Mod <- filter(GlobalLandTemperaturesByMajorCity, dt>= "1849-12-31")
+# Saving edited file
+write.table(GlobalLandTemperaturesByMajorCity_Mod, "GlobalLaandTempBy_MCity.csv")                                       
+# Removing original data frame
+rm(GlobalLandTemperaturesByMajorCity)
 ```
-
-#### Combining the data in to one data set
