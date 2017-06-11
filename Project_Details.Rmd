@@ -41,7 +41,7 @@ I will be providing the analysis that might include dynamic graphs and charts wi
 * Explore outliers with min and max to see the extremes 
 * Merging data to streamline the analysis flow
 
-```{r ilibraries}
+```{r ilibraries, message=FALSE, warning=FALSE, include=FALSE}
 library(magrittr)
 library(dplyr)
 library(tidyr)
@@ -52,80 +52,20 @@ library(data.table)
 library(lubridate)
 ```
 
-## Global Temperatures - (GlobalTemperatures.csv)
-This data set contains next columns: dt, LandAverageTemperature, LandAverageTemperatureUncertainty, LandMaxTemperature, LandMaxTemperatureUncertainty, LandMinTemperature, LandMinTemperatureUncertainty, LandAndOceanAverageTemperature, LandAndOceanAverageTemperatureUncertainty
+## Statistical Analysis
 
-* Removing data prior 1850 to be removed. 
+### Analysis Of Global Temperature (Land Vs Ocean)
 
-```{r TempGlobal, message=TRUE}
+Based on the Average Temperature Graph bellow, we can see that average temperature of the land has been significantly increasing with higher rate than temperature of the ocean. Oceans are heating and cooling much faster than land due to low density of the water. There are few factors that could cause average land temperature to increase with higher rate than ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forest will allow larger amounts of greenhouse gases to enter the atmosphere, trap the solar rays and heat up the surface that once has been protected by forest. Industrial effects with developed and developing countries plays the significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. 
+
+```{r TempGlobal, echo=FALSE, message=FALSE, warning=FALSE}
 # Loading data set
 GlobalTemperatures <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalTemperatures.csv")
 View(GlobalTemperatures)
 # Standardizing the date format
 GlobalTemperatures$dt = as.Date(GlobalTemperatures$dt, "%Y-%m-%d" ) 
 # Filtering data range
-GlobalTemperatures <- filter(GlobalTemperatures, dt>= "1849-12-31")                      
-# Saving edited file
-```
-
-## Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
-This set contains next columns: dt, AverageTemperature, AverageTemperautreUncertanity and Country.
-
-* Removing data prior 1850 to be removed. 
-
-```{r TempByCountry}
-# Loading data set
-GlobalLandTemperaturesByCountry <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByCountry.csv")
-View(GlobalLandTemperaturesByCountry)
-# Filtering data range
-GlobalLandTemperaturesByCountry <- filter(GlobalLandTemperaturesByCountry, dt>= "1849-12-31")
-# Saving edited file
-```
-
-## Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
-This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, State,	Country.
-
-* Removing data prior 1850 to be removed. 
-
-```{r TempByStates}
-# Loading data set
-GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByState.csv")
-View(GlobalLandTemperaturesByState)
-# Formating dates
-GlobalLandTemperaturesByState$dt <- as.Date(GlobalLandTemperaturesByState$dt, "%Y-%m-%d")
-# Filtering data range
-GlobalLandTemperaturesByState <- filter(GlobalLandTemperaturesByState, dt>= "1849-12-31")
-#  Removing NAs
-GlobalLandTemperaturesByState = na.omit(GlobalLandTemperaturesByState)
-# Extracting Month from dt column in to new  Month column
-GlobalLandTemperaturesByState$Month <- month(GlobalLandTemperaturesByState$dt)
-GlobalLandTemperaturesByState$Year <- year(GlobalLandTemperaturesByState$dt)
-                                      
-```
-
-## Global Land Temperatures by Major City (GlobalLandTemperaturesByMajorCity.csv)
-This set contains next columns: dt, AverageTemperature, AverageTemperatureUncertainty, City, Country, Latitude, Longitude.
-
-* Removing data prior 1850 to be removed. 
-
-```{r TempByMajorCity}
-# Loading data set
-GlobalLandTemperaturesByMajorCity <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
-View(GlobalLandTemperaturesByMajorCity)
-# Filtering data range
-GlobalLandTemperaturesByMajorCity <- filter(GlobalLandTemperaturesByMajorCity, dt>= "1849-12-31")
-```
-
-# Statistical Analysis
-
-## Analysis Of Global Temperature (Land Vs Ocean)
-
-```{R globalTMP}
-library(dplyr)
-library(ggplot2)
-library(reshape2)
-library(data.table)
-library(lubridate)
+GlobalTemperatures <- filter(GlobalTemperatures, dt>= "1849-12-31")
 # Extracting the month out of the dt column in to new Monthviw column
 GlobalTemperatures$Month <- month(GlobalTemperatures$dt)
 # Converting month number in to Month Name
@@ -147,23 +87,76 @@ ggplot(data= Plot_ds, aes(x=Year, y= value, colour = variable)) +
 	   theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) +
 	   ggtitle("Average Temperature Trend") +
 	   theme(plot.title = element_text(size = 13, lineheight=.8, face="bold"))
-rm(Plot_ds)
 ```
 
-Based on the Average Temperature Graph we can see that average temperature of the land has been significantly increasing with higher rate than temperature of the ocean. Oceans are heating and cooling much faster than land due to low density of the water. There are few factors that could cause average land temperature to increase with higher rate than ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forest will allow larger amounts of greenhouse gases to enter the atmosphere, trap the solar rays and heat up the surface that once has been protected by forest. Industrial effects with developed and developing countries plays the significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well.  
+
+ 
 
 
+### Average Temperature Difference Between 1850 and 2013
 
-## Analysis Of diffrence between Global Average Temperature during 1850 and 2013
 
-```{R avgtmp, echo=TRUE}
+```{R avgtmp, echo=FALSE, message=FALSE, warning=FALSE}
+# Loading data set
+GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByState.csv")
+View(GlobalLandTemperaturesByState)
+# Formating dates
+GlobalLandTemperaturesByState$dt <- as.Date(GlobalLandTemperaturesByState$dt, "%Y-%m-%d")
+# Filtering data range
+GlobalLandTemperaturesByState <- filter(GlobalLandTemperaturesByState, dt>= "1849-12-31")
+#  Removing NAs
+GlobalLandTemperaturesByState = na.omit(GlobalLandTemperaturesByState)
+# Extracting Month from dt column in to new  Month column
+GlobalLandTemperaturesByState$Month <- month(GlobalLandTemperaturesByState$dt)
+GlobalLandTemperaturesByState$Year <- year(GlobalLandTemperaturesByState$dt)
 # Extract avg temperature by year
 GlobalTempSummary <- GlobalLandTemperaturesByState %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
 # Creating plot
 ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=16, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
 ```
 
-#### Top 10 hottest and coldest cities in period of 1850 - 2013
+### Top 10 hottest and coldest cities in period of 1850 - 2013
+
+```{r TempByMajorCity}
+# Loading data set
+GlTempCity <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
+View(GlTempCity)
+#Formating Data Range
+GlTempCity$dt <- as.Date(GlTempCity$dt, "%Y-%m-%d")
+# Filtering data range
+GlTempCity <- filter(GlTempCity, dt>= "1849-12-31")
+# Filtering out NAs
+GlTempCity = na.omit(GlTempCity)
+# Extracting the month out of dt
+GlTempCity$Month <- month(GlTempCity$dt)
+# Converting Month number to Month Name
+GlTempCity$Month <- month(GlTempCity$Month, label = TRUE)
+# Extracting the year out of dt
+GlTempCity$Year <- year(GlTempCity$dt)
+# Grouping by City with avg. temperature on average
+GlTempSum <- GlTempCity %>% group_by(City) %>% summarise(AvgTemp = mean(AverageTemperature))
+# Extracting top 10 hotest city
+Top10Hotest <- head(arrange(GlTempSum, desc(AvgTemp)), n= 10)
+# Extracting top 10 coldest city on average
+Top10Coldest <- head(arrange(GlTempSum, AvgTemp), n = 10)
+# Plotting the the top 10 coldest cities
+ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="steelblue") + geom_text(aes(label=format(Top10Coldest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("Top 10 Coldest cities between 1850 - 2013") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1))
+# Plotting the top 10 hottest cities
+ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("Top 10 hotest cities between 1850 - 2013") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
+
+```
+
+
+### Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
+
+```{r TempByCountry}
+# Loading data set
+GlobalLandTemperaturesByCountry <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByCountry.csv")
+View(GlobalLandTemperaturesByCountry)
+# Filtering data range
+GlobalLandTemperaturesByCountry <- filter(GlobalLandTemperaturesByCountry, dt>= "1849-12-31")
+```
+
 
 
 
