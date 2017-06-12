@@ -50,6 +50,8 @@ library(ggplot2)
 library(reshape2)
 library(data.table)
 library(lubridate)
+library(ggthemes)
+library(scales)
 ```
 
 ## Statistical Analysis
@@ -113,6 +115,8 @@ GlobalLandTemperaturesByState$Year <- year(GlobalLandTemperaturesByState$dt)
 GlobalTempSummary <- GlobalLandTemperaturesByState %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
 # Creating plot
 ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=16, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
+
+
 ```
 
 ### Top 10 hottest and coldest cities in period of 1850 - 2013
@@ -143,10 +147,19 @@ Top10Coldest <- head(arrange(GlTempSum, AvgTemp), n = 10)
 ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="steelblue") + geom_text(aes(label=format(Top10Coldest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("Top 10 Coldest cities between 1850 - 2013") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1))
 # Plotting the top 10 hottest cities
 ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("Top 10 hotest cities between 1850 - 2013") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
+# Converting Longitude and latitude in correct format in Top10coldest dataset
+Top10Coldest$LAT <- as.numeric(gsub("N|E|S|W", "",Top10Coldest$Latitude))*ifelse(grepl("S",Top10Coldest$Latitude),-1,1)
+Top10Coldest$LONG <- as.numeric(gsub("N|E|S|W", "", Top10Coldest$Longitude))*ifelse(grepl("W",Top10Coldest$Longitude),-1,1)
+# Converting Longitude and latitude in correct format in Top10Hotest dataset
+Top10Hotest$LAT <- as.numeric(gsub("N|E|S|W", "",Top10Hotest$Latitude))*ifelse(grepl("S",Top10Hotest$Latitude),-1,1)
+Top10Hotest$LONG <- as.numeric(gsub("N|E|S|W", "", Top10Hotest$Longitude))*ifelse(grepl("W",Top10Hotest$Longitude),-1,1)
 # Plottinig the coldest and hottest cities on world map
-
-
-
+mapWorld <- borders("world", colour="black", fill="white") # create a layer of borders
+mp <- ggplot() +   mapWorld
+mp <- mp+ geom_point(aes(x=Top10Coldest$LONG, y=Top10Coldest$LAT) ,color="blue", size=5, alpha = .5) + ggtitle('Coldest Vs Hotest Major Cities between 1850 and 2013') + theme_fivethirtyeight() + xlab("Longitude") + ylab("Latitude") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) 
+mp2 <- ggplot() +   mapWorld
+mp2 <- mp+ geom_point(aes(x=Top10Hotest$LONG, y=Top10Hotest$LAT) ,color="red", size=5, alpha =.5) 
+mp2
 ```
 
 
