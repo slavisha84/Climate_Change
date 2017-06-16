@@ -1,47 +1,91 @@
 ---
-title: "Climate_Change"
+title: "Climate Change"
 author: "Slavoljub Petkovic"
 date: "May 21, 2017"
 output: 
   html_document: 
-    toc: yes
+    number_sections: true
+    toc: true
+    fig_width: 7
+    fig_height: 4.5
+    theme: readable
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
 ```
 
-# Overview
+# Introduction
 
 This project is meant to shed light on several questions related to climate changes. I will be using set of data from Kaggle.com which contains 3 files with temperature details in period of time between 1850 and 2013:
-
 
 1. Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
 2. Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
 3. Global Land Temperatures by Major City (GlobalLandTemperaturesByMajorCity.csv)
 
-[Data can be located here] (https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data)
+[Data Location:] (https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data)
 
 In this research, I will attempt to answer few questions below:
 
 1. What is the difference between Land and Ocean average temperature over the time? 
-2. Does the rate of change over the continent correlate with changes over the states around the world?
-3. What are the top 5 hottest and top 5 coldest major cities in the world?
+2. What are the top 5 hottest and top 5 coldest major cities in the world?
+3. What is temperature trend for city of residence ( Atlanta)?
 4. What kind of climate we can expect in next 5 years, 10 years, 50 years and 100 years based on predictive analysis?
 5. Is there an active global warming?
+6. What are key effects of global warming?
 
 I will be providing the analysis that might include dynamic graphs and charts with short explanation of what each of them means and why is it important for us.
 
-# Data Wrangling
+# The evidence for rapid climate change
 
-* Removing irrelevant columns and rows
-* Standardizing Column Names
-* Exploring the data for missing values and NA
-* Formatting values for consistency
-* Explore outliers with min and max to see the extremes 
-* Merging data to streamline the analysis flow
+**Rais of the sea level**
+
+Global sea level rose about 8 inches in the last century. The rate in the last two decades, however, is nearly double that of the last century.
+
+**Raise of the ocean temperature**
+
+The oceans have absorbed much of this increased heat, with the top 700 meters (about 2,300 feet) of ocean showing warming of 0.302 degrees Fahrenheit since 1969.
+
+**Shrinking of ice sheets**
+
+The Greenland and Antarctic ice sheets have decreased in mass. Data from NASA's Gravity Recovery and Climate Experiment show Greenland lost 150 to 250 cubic kilometers (36 to 60 cubic miles) of ice per year between 2002 and 2006, while Antarctica lost about 152 cubic kilometers (36 cubic miles) of ice between 2002 and 2005.
+
+**Glacial retreat**
+
+Glaciers are retreating almost everywhere around the world — including in the Alps, Himalayas, Andes, Rockies, Alaska and Africa.
+
+**Ocean acidification**
+
+Since the beginning of the Industrial Revolution, the acidity of surface ocean waters has increased by about 30 percent.11,12 This increase is the result of humans emitting more carbon dioxide into the atmosphere and hence more being absorbed into the oceans. The amount of carbon dioxide absorbed by the upper layer of the oceans is increasing by about 2 billion tons per year.13,14
+
+**Increase of the global temperature**
+
+The Earth's climate has changed throughout history. Just in the last 650,000 years there have been seven cycles of glacial advance and retreat, with the abrupt end of the last ice age about 7,000 years ago marking the beginning of the modern climate era — and of human civilization. Most of these climate changes are attributed to very small variations in Earth’s orbit that change the amount of solar energy our planet receives.
+
+# Descriptive Analytics
 
 ```{r ilibraries, message=FALSE, warning=FALSE, include=FALSE}
+#install.packages(magrittr)
+#install.packages(dplyr)
+#install.packages(tidyr)
+#install.packages(readr)
+#install.packages(ggplot2) 
+#install.packages(reshape2)
+#install.packages(data.table)
+#install.packages(lubridate)
+#install.packages(ggthemes)
+#install.packages(scales)
+#install.packages(grid)
+#install.packages(gridExtra)
+#install.packages(RColorBrewer)
+#install.packages(sp)
+#install.packages(rworldmap)
+
 library(magrittr)
 library(dplyr)
 library(tidyr)
@@ -52,15 +96,19 @@ library(data.table)
 library(lubridate)
 library(ggthemes)
 library(scales)
+library(grid)
+library(gridExtra)
+library(RColorBrewer)
+library(sp)
+library(rworldmap)
 ```
 
-## Statistical Analysis
 
-### Analysis Of Global Temperature (Land Vs Ocean)
+## Analysis Of Global Temperature (Land Vs Ocean)
 
-Based on the Average Temperature Graph bellow, we can see that average temperature of the land has been significantly increasing with higher rate than temperature of the ocean. Oceans are heating and cooling much faster than land due to low density of the water. There are few factors that could cause average land temperature to increase with higher rate than ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forest will allow larger amounts of greenhouse gases to enter the atmosphere, trap the solar rays and heat up the surface that once has been protected by forest. Industrial effects with developed and developing countries plays the significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. 
+Based on the Average Temperature Graph bellow, we can see that average temperature of the land has been significantly increasing with higher rate than temperature of the ocean. Oceans are heating and cooling much faster than land due to low density of the water. There are few factors that could cause average land temperature to increase with higher rate than ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forest will allow larger amounts of greenhouse gases to enter the atmosphere(~15% carbon) and trap the solar rays and heat up the surface that once has been protected by forest. Industrial effects with developed and developing countries plays the significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes to 22% of world’s crbon emission. 
 
-```{r TempGlobal, echo=FALSE, message=FALSE, warning=FALSE}
+```{r TempGlobal, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
 GlobalTemperatures <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalTemperatures.csv")
 View(GlobalTemperatures)
@@ -91,14 +139,9 @@ ggplot(data= Plot_ds, aes(x=Year, y= value, colour = variable)) +
 	   theme(plot.title = element_text(size = 13, lineheight=.8, face="bold"))
 ```
 
+## Average Temperature Difference Between 1850 and 2013
 
- 
-
-
-### Average Temperature Difference Between 1850 and 2013
-
-
-```{R avgtmp, echo=FALSE, message=FALSE, warning=FALSE}
+```{R avgtmp, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
 GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByState.csv")
 View(GlobalLandTemperaturesByState)
@@ -115,13 +158,11 @@ GlobalLandTemperaturesByState$Year <- year(GlobalLandTemperaturesByState$dt)
 GlobalTempSummary <- GlobalLandTemperaturesByState %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
 # Creating plot
 ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=16, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
-
-
 ```
 
-### Top 10 hottest and coldest cities in period of 1850 - 2013
+## Top 10 hottest and coldest cities in period of 1850 - 2013
 
-```{r TempByMajorCity}
+```{r TempByMajorCity, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
 GlTempCity <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
 View(GlTempCity)
@@ -162,18 +203,171 @@ mp2 <- mp+ geom_point(aes(x=Top10Hotest$LONG, y=Top10Hotest$LAT) ,color="red", s
 mp2
 ```
 
+## Average Temperature by all Cities
 
-### Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
-
-```{r TempByCountry}
-# Loading data set
-GlobalLandTemperaturesByCountry <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByCountry.csv")
-View(GlobalLandTemperaturesByCountry)
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+TempByAllCities <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByCity.csv")
+# Eliminating NAs
+TempByAllCities <- na.omit(TempByAllCities)
+# Converting dt to correct dates
+TempByAllCities$dt <- as.Date(TempByAllCities$dt, "%Y-%m-%d")
 # Filtering data range
-GlobalLandTemperaturesByCountry <- filter(GlobalLandTemperaturesByCountry, dt>= "1849-12-31")
+TempByAllCities <- filter(TempByAllCities, dt>= "1849-12-31")
+# Extracting the month out of dt
+TempByAllCities$Month <- month(TempByAllCities$dt)
+# Converting Month number to Month Name
+TempByAllCities$Month <- month(TempByAllCities$Month, label = TRUE)
+# Extracting the year out of dt
+TempByAllCities$Year <- year(TempByAllCities$dt)
+# Converting Lat and Long to correct format
+TempByAllCities$LAT <- as.numeric(gsub("N|E|S|W", "",TempByAllCities$Latitude))*ifelse(grepl("S",TempByAllCities$Latitude),-1,1)
+TempByAllCities$LONG <- as.numeric(gsub("N|E|S|W", "", TempByAllCities$Longitude))*ifelse(grepl("W",TempByAllCities$Longitude),-1,1)
+# Grouping the dataset by Country and City
+TempByAllCitiesSum <- TempByAllCities %>% group_by(Country, City) %>% select(AverageTemperature, City ,LAT, LONG, Country) %>% summarise(avgTemp_start = mean(AverageTemperature), long = mean(LONG), lat = mean(LAT))
+# Focusing on year 2013
+Year2013 <- TempByAllCities %>% filter(Year ==2013)
+Year2013 <- Year2013 %>% group_by(Country,City) %>% select(AverageTemperature,City) %>% summarise(avgTemp_end = mean(AverageTemperature))
+# Getting the final dataset
+finalds <- merge(TempByAllCitiesSum,Year2013, by=c('Country','City'))
+# Ploting the avg. temp difference on map
+worldMap <- fortify(map_data("world"), region = "region")
+m <- ggplot() + geom_map(data = worldMap, map = worldMap,aes(x = long, y = lat, map_id = region, group = group),fill = "white", color = "black", size = 0.1)
+m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.2) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none')
+```
+
+Based on World Map with average temperature changes, we can see that most significant temperature increase is measured in develoeped countries. It is expected for these countries to be the one who produces most of the greenhouse gasses such as some of these below:
+
+**Carbon dioxide (CO2)**
+
+Carbon dioxide enters the atmosphere through burning fossil fuels (coal, natural gas, and oil), solid waste, trees and wood products, and also as a result of certain chemical reactions (e.g., manufacture of cement). Carbon dioxide is removed from the atmosphere (or "sequestered") when it is absorbed by plants as part of the biological carbon cycle.
+
+**Methane (CH4)**
+
+Methane is emitted during the production and transport of coal, natural gas, and oil. Methane emissions also result from livestock and other agricultural practices and by the decay of organic waste in municipal solid waste landfills.
+
+**Nitrous oxide (N2O)**
+
+Nitrous oxide is emitted during agricultural and industrial activities, as well as during combustion of fossil fuels and solid waste.
+
+**Fluorinated gases**
+
+Hydrofluorocarbons, perfluorocarbons, sulfur hexafluoride, and nitrogen trifluoride are synthetic, powerful greenhouse gases that are emitted from a variety of industrial processes. Fluorinated gases are sometimes used as substitutes for stratospheric ozone-depleting substances (e.g., chlorofluorocarbons, hydrochlorofluorocarbons, and halons). These gases are typically emitted in smaller quantities, but because they are potent greenhouse gases, they are sometimes referred to as High Global Warming Potential gases ("High GWP gases").
+
+## Average Temperature In Atlanta
+
+```{r, echo=TRUE}
+# Extracting data for Atlanta
+ATLTemp <- filter(TempByAllCities, City == "Atlanta")
+ATLTempSum <- ATLTemp %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
+ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 4) + geom_smooth(method="loess", color = 'red', size = 2) + labs(title="Average Temperature in Atlanta ", x="Year", y="Avg. Temperature in (C)") +theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13))
+
 ```
 
 
+## Temperature uncertanity for data used in Descriptive Analytics
+
+```{r}
+
+
+```
+## Density Plot of Temperature Unceratnity for data used in Descrptive Analytics
+
+```{r}
+
+
+```
+
+# Predictive Analytics
+Machine learning using algorithms to predict future temperature levels.
+
+## Prediction for next 10 years
+
+```{r}
+
+```
+
+## Prediction for next 50 years
+
+```{r}
+
+```
+
+## Prediction for next 100 years
+
+```{r}
+
+```
+
+
+# References
+
+IPCC Fifth Assessment Report, Summary for Policymakers
+
+B.D. Santer et.al., “A search for human influences on the thermal structure of the atmosphere,” Nature vol 382, 4 July 1996, 39-46
+
+Gabriele C. Hegerl, “Detecting Greenhouse-Gas-Induced Climate Change with an Optimal Fingerprint Method,” Journal of Climate, v. 9, October 1996, 2281-2306
+
+V. Ramaswamy et.al., “Anthropogenic and Natural Influences in the Evolution of Lower Stratospheric Cooling,” Science 311 (24 February 2006), 1138-1141
+
+B.D. Santer et.al., “Contributions of Anthropogenic and Natural Forcing to Recent Tropopause Height Changes,” Science vol. 301 (25 July 2003), 479-483.
+
+In the 1860s, physicist John Tyndall recognized the Earth's natural greenhouse effect and suggested that slight changes in the atmospheric composition could bring about climatic variations. In 1896, a seminal paper by Swedish scientist Svante Arrhenius first predicted that changes in the levels of carbon dioxide in the atmosphere could substantially alter the surface temperature through the greenhouse effect.
+
+National Research Council (NRC), 2006. Surface Temperature Reconstructions For the Last 2,000 Years. National Academy Press, Washington, D.C.
+
+http://earthobservatory.nasa.gov/Features/GlobalWarming/page3.php
+
+https://www.ipcc.ch/pdf/assessment-report/ar5/syr/AR5_SYR_FINAL_SPM.pdf
+
+Church, J. A. and N.J. White (2006), A 20th century acceleration in global sea level rise, Geophysical Research Letters, 33, L01602, doi:10.1029/2005GL024826.
+
+The global sea level estimate described in this work can be downloaded from the CSIRO website.
+
+https://www.ncdc.noaa.gov/indicators/
+
+http://www.cru.uea.ac.uk/cru/data/temperature
+
+http://data.giss.nasa.gov/gistemp
+
+https://www.giss.nasa.gov/research/news/20170118/)  
+ 
+
+Levitus, et al, "Global ocean heat content 1955–2008 in light of recently revealed instrumentation problems," Geophys. Res. Lett. 36, L07608 (2009).
+
+L. Polyak, et.al., “History of Sea Ice in the Arctic,” in Past Climate Variability and Change in the Arctic and at High Latitudes, U.S. Geological Survey, Climate Change Science Program Synthesis and Assessment Product 1.2, January 2009, chapter 7
+
+R. Kwok and D. A. Rothrock, “Decline in Arctic sea ice thickness from submarine and ICESAT records: 1958-2008,” Geophysical Research Letters, v. 36, paper no. L15501, 2009
+
+http://nsidc.org/sotc/sea_ice.html
+
+National Snow and Ice Data Center
+
+World Glacier Monitoring Service
+
+"Attribution of Extreme Weather Events in the Context of Climate Change," National Academies Press, 2016
+https://www.nap.edu/read/21852/chapter/1
+
+Kunkel, K. et al, "Probable maximum precipitation and climate change," Geophysical Research Letters, (12 April 2013) DOI: 10.1002/grl.50334 
+
+Kunkel, K. et al, "Monitoring and Understanding Trends in Extreme Storms: State of the Knowledge," Bulletin of the American Meteorological Society, 2012.
+
+http://lwf.ncdc.noaa.gov/extremes/cei.html
+
+http://www.pmel.noaa.gov/co2/story/What+is+Ocean+Acidification%3F
+
+http://www.pmel.noaa.gov/co2/story/Ocean+Acidification
+
+C. L. Sabine et.al., “The Oceanic Sink for Anthropogenic CO2,” Science vol. 305 (16 July 2004), 367-371
+
+Copenhagen Diagnosis, p. 36.
+
+National Snow and Ice Data Center
+
+C. Derksen and R. Brown, "Spring snow cover extent reductions in the 2008-2012 period exceeding climate model projections," GRL, 39:L19504
+
+http://nsidc.org/cryosphere/sotc/snow_extent.html
+
+Rutgers University Global Snow Lab, Data History Accessed August 29, 2011.
 
 
 
