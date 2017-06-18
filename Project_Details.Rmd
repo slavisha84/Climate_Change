@@ -110,8 +110,7 @@ Based on the Average Temperature Graph bellow, we can see that average temperatu
 
 ```{r TempGlobal, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
-GlobalTemperatures <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalTemperatures.csv")
-View(GlobalTemperatures)
+GlobalTemperatures <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
 # Standardizing the date format
 GlobalTemperatures$dt = as.Date(GlobalTemperatures$dt, "%Y-%m-%d" ) 
 # Filtering data range
@@ -122,8 +121,6 @@ GlobalTemperatures$Month <- month(GlobalTemperatures$dt)
 GlobalTemperatures$Month <- month(GlobalTemperatures$Month, label = TRUE)
 # Extracting the year out of the dt column in to new Year column
 GlobalTemperatures$Year <- year(GlobalTemperatures$dt)
-# Selecting the columns of interest
-GlobalTemperatures <- select(GlobalTemperatures,dt,LandAverageTemperature, LandAndOceanAverageTemperature, Month, Year)
 # Remove rows that contains NA
 GlobalTemperatures <- GlobalTemperatures[!is.na(GlobalTemperatures$LandAndOceanAverageTemperature)  | !is.na(GlobalTemperatures$LandAverageTemperature),]
 # Calculate AverageOcean Temperature
@@ -133,18 +130,27 @@ GlobalTemperaturesSummary <- GlobalTemperatures %>% group_by(Year) %>% summarise
 # Ploting Avgerage Ocean Temperature and Average Land temperature on timescale
 Plot_ds <-melt(GlobalTemperaturesSummary, id ="Year")
 ggplot(data= Plot_ds, aes(x=Year, y= value, colour = variable)) +
-	   geom_line() + coord_cartesian(ylim = c(0, 40)) + xlab("Years") + ylab("Average Temperature") +
-	   theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) +
+	   geom_line(size = 1) + coord_cartesian(ylim = c(5, 30)) + xlab("Years") + ylab("Average Temperature") +
+	   theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
 	   ggtitle("Average Temperature Trend") +
-	   theme(plot.title = element_text(size = 13, lineheight=.8, face="bold"))
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + facet_grid(Plot_ds$variable ~., scales = "free_y") + theme(legend.position="none")
+```
+
+##Min and Max Average Temperature Trends
+
+```{r min max, echo=TRUE}
+GlobalTemperaturesMinMax <- GlobalTemperatures %>% group_by(Year) %>% summarise(AvgMaxTemp = mean(as.numeric(LandMaxTemperature)), AvgMinTemp = mean(as.numeric(LandMinTemperature)))
+Plot_minMAx <-melt(GlobalTemperaturesMinMax, id = "Year")
+ggplot(data = Plot_minMAx, aes(Year, value, variable)) + geom_line(size = .5) + geom_smooth(size = 1) + facet_grid(Plot_minMAx$variable ~ ., scales = "free_y") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
+	   ggtitle("Min And Max Average temperature Trend") +
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
 
 ## Average Temperature Difference Between 1850 and 2013
 
 ```{R avgtmp, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
-GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByState.csv")
-View(GlobalLandTemperaturesByState)
+GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByState.csv")
 # Formating dates
 GlobalLandTemperaturesByState$dt <- as.Date(GlobalLandTemperaturesByState$dt, "%Y-%m-%d")
 # Filtering data range
@@ -157,15 +163,14 @@ GlobalLandTemperaturesByState$Year <- year(GlobalLandTemperaturesByState$dt)
 # Extract avg temperature by year
 GlobalTempSummary <- GlobalLandTemperaturesByState %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
 # Creating plot
-ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=16, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
+ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=16, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
 ```
 
-## Top 10 hottest and coldest cities in period of 1850 - 2013
+## Top 10 Coldest Major Cities between 1850 - 2013
 
 ```{r TempByMajorCity, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
-GlTempCity <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
-View(GlTempCity)
+GlTempCity <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
 #Formating Data Range
 GlTempCity$dt <- as.Date(GlTempCity$dt, "%Y-%m-%d")
 # Filtering data range
@@ -185,9 +190,22 @@ Top10Hotest <- head(arrange(GlTempSum, desc(AvgTemp)), n= 10)
 # Extracting top 10 coldest city on average
 Top10Coldest <- head(arrange(GlTempSum, AvgTemp), n = 10)
 # Plotting the the top 10 coldest cities
-ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="steelblue") + geom_text(aes(label=format(Top10Coldest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("Top 10 Coldest cities between 1850 - 2013") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1))
+ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="steelblue") + geom_text(aes(label=format(Top10Coldest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("Top 10 Coldest cities between 1850 - 2013") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1))
+```
+
+## Top 10 Hottest Major Cities between 1850 - 2013
+
+```{r hottest cities, echo=TRUE}
 # Plotting the top 10 hottest cities
-ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) + ggtitle("Top 10 hotest cities between 1850 - 2013") + theme(plot.title = element_text(size = 13, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
+ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Hottest Cities") + ylab("Maximum Avergate Temp in (C)") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("Top 10 hotest cities between 1850 - 2013") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
+```
+
+
+
+
+## Coldest vs. Hottest Cities on WorldMap
+
+```{r worldmap, echo=TRUE}
 # Converting Longitude and latitude in correct format in Top10coldest dataset
 Top10Coldest$LAT <- as.numeric(gsub("N|E|S|W", "",Top10Coldest$Latitude))*ifelse(grepl("S",Top10Coldest$Latitude),-1,1)
 Top10Coldest$LONG <- as.numeric(gsub("N|E|S|W", "", Top10Coldest$Longitude))*ifelse(grepl("W",Top10Coldest$Longitude),-1,1)
@@ -197,7 +215,7 @@ Top10Hotest$LONG <- as.numeric(gsub("N|E|S|W", "", Top10Hotest$Longitude))*ifels
 # Plottinig the coldest and hottest cities on world map
 mapWorld <- borders("world", colour="black", fill="white") # create a layer of borders
 mp <- ggplot() +   mapWorld
-mp <- mp+ geom_point(aes(x=Top10Coldest$LONG, y=Top10Coldest$LAT) ,color="blue", size=5, alpha = .5) + ggtitle('Coldest Vs Hotest Major Cities between 1850 and 2013') + theme_fivethirtyeight() + xlab("Longitude") + ylab("Latitude") + theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13)) 
+mp <- mp+ geom_point(aes(x=Top10Coldest$LONG, y=Top10Coldest$LAT) ,color="blue", size=5, alpha = .5) + ggtitle('Coldest Vs Hotest Major Cities between 1850 and 2013') + theme_fivethirtyeight() + xlab("Longitude") + ylab("Latitude") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 mp2 <- ggplot() +   mapWorld
 mp2 <- mp+ geom_point(aes(x=Top10Hotest$LONG, y=Top10Hotest$LAT) ,color="red", size=5, alpha =.5) 
 mp2
@@ -206,7 +224,7 @@ mp2
 ## Average Temperature by all Cities
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
-TempByAllCities <- read_csv("C:/GIT/R/Climate_Change/Data_Source/GlobalLandTemperaturesByCity.csv")
+TempByAllCities <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByCity.csv")
 # Eliminating NAs
 TempByAllCities <- na.omit(TempByAllCities)
 # Converting dt to correct dates
@@ -232,7 +250,7 @@ finalds <- merge(TempByAllCitiesSum,Year2013, by=c('Country','City'))
 # Ploting the avg. temp difference on map
 worldMap <- fortify(map_data("world"), region = "region")
 m <- ggplot() + geom_map(data = worldMap, map = worldMap,aes(x = long, y = lat, map_id = region, group = group),fill = "white", color = "black", size = 0.1)
-m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.2) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none')
+m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.2) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none') + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
 
 Based on World Map with average temperature changes, we can see that most significant temperature increase is measured in develoeped countries. It is expected for these countries to be the one who produces most of the greenhouse gasses such as some of these below:
@@ -259,23 +277,19 @@ Hydrofluorocarbons, perfluorocarbons, sulfur hexafluoride, and nitrogen trifluor
 # Extracting data for Atlanta
 ATLTemp <- filter(TempByAllCities, City == "Atlanta")
 ATLTempSum <- ATLTemp %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
-ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 4) + geom_smooth(method="loess", color = 'red', size = 2) + labs(title="Average Temperature in Atlanta ", x="Year", y="Avg. Temperature in (C)") +theme(axis.title = element_text(size = 15), axis.text = element_text(size = 13))
+ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geom_smooth(method="loess", color = 'red', size = 2) + labs(title="Average Temperature in Atlanta ", x="Year", y="Avg. Temperature in (C)") +theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 
 ```
-
 
 ## Temperature uncertanity for data used in Descriptive Analytics
 
-```{r}
-
-
+```{r, echo=TRUE}
+AvgTempUncert <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTempUnc = mean(AverageTemperatureUncertainty))
+ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
+     geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
-## Density Plot of Temperature Unceratnity for data used in Descrptive Analytics
 
-```{r}
-
-
-```
+## Conclusions
 
 # Predictive Analytics
 Machine learning using algorithms to predict future temperature levels.
