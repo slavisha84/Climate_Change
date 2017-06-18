@@ -2,14 +2,16 @@
 title: "Climate Change"
 author: "Slavoljub Petkovic"
 date: "May 21, 2017"
-output: 
-  html_document: 
-    number_sections: true
-    toc: true
-    fig_width: 7
+output:
+  html_document:
     fig_height: 4.5
-    theme: readable
+    fig_width: 7
     highlight: tango
+    number_sections: yes
+    theme: readable
+    toc: yes
+  word_document:
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -289,7 +291,19 @@ ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
      geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
 
+## Exploring Seasons
+
+```{r}
+SeasonTrend <- TempByAllCities %>% group_by(Year, Month) %>% summarise(AvgTemp = mean(AverageTemperature))
+SeasonTrendPlot <- ts(SeasonTrend$AvgTemp, start = c(min(SeasonTrend$Year),1), end = c(max(SeasonTrend$Year),12), frequency = 12)
+SeasonTrendPlot <- stl(SeasonTrendPlot, s.window = "period")
+plot(SeasonTrendPlot)
+```
+
 ## Conclusions
+
+
+
 
 # Predictive Analytics
 Machine learning using algorithms to predict future temperature levels.
