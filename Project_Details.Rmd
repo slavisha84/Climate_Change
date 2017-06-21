@@ -108,7 +108,7 @@ library(rworldmap)
 
 ## Analysis Of Global Temperature (Land Vs Ocean)
 
-Based on the Average Temperature Graph bellow, we can see that average temperature of the land has been significantly increasing with higher rate than temperature of the ocean. Oceans are heating and cooling much faster than land due to low density of the water. There are few factors that could cause average land temperature to increase with higher rate than ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forest will allow larger amounts of greenhouse gases to enter the atmosphere(~15% carbon) and trap the solar rays and heat up the surface that once has been protected by forest. Industrial effects with developed and developing countries plays the significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes to 22% of world’s crbon emission. 
+Based on the Average Temperature Graph bellow, we can see that average temperature of the land has been significantly increasing with higher rate than temperature of the ocean. Oceans are heating and cooling much faster than land due to low density of the water. There are few factors that could cause average land temperature to increase with higher rate than ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forest will allow larger amounts of greenhouse gases to enter the atmosphere(~15% carbon) and trap the solar rays and heat up the surface that once has been protected by forest. Industrial effects within developed and developing countries plays the significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes to 22% of world’s crbon emission. 
 
 ```{r TempGlobal, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -140,15 +140,25 @@ ggplot(data= Plot_ds, aes(x=Year, y= value, colour = variable)) +
 
 ##Min and Max Average Temperature Trends
 
+Analysis of temperature extremes over time requires daily maximum and minimum temperature data from stations with records of sufficient length, quality, completeness, and temporal homogeneity. Homogeneity of the daily temperature record is an especially difficult challenge due to stations experiencing varying degrees of change over time in location, instrumentation, observing practices, and siting conditions.
+In Graph below we can se the amplitudes of change for these extremes. It is clear that both temperature extremes across century and half are slightly increasing with corelation of ~90%. 
+
 ```{r min max, echo=TRUE}
+# Extracting min and max values 
 GlobalTemperaturesMinMax <- GlobalTemperatures %>% group_by(Year) %>% summarise(AvgMaxTemp = mean(as.numeric(LandMaxTemperature)), AvgMinTemp = mean(as.numeric(LandMinTemperature)))
+# Preparing variable for plot using melt function creating identifier and measured variable.
 Plot_minMAx <-melt(GlobalTemperaturesMinMax, id = "Year")
+# Plotting min and max temperature trend. 
 ggplot(data = Plot_minMAx, aes(Year, value, variable)) + geom_line(size = .5) + geom_smooth(size = 1) + facet_grid(Plot_minMAx$variable ~ ., scales = "free_y") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
 	   ggtitle("Min And Max Average temperature Trend") +
 	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+# Runing the coorelation between max and min temperature
+cor(GlobalTemperaturesMinMax$AvgMaxTemp, GlobalTemperaturesMinMax$AvgMinTemp)
 ```
 
 ## Average Temperature Difference Between 1850 and 2013
+
+The Graph bellow illustrates the change in global surface temperature relative to 1850-2013 average temperatures. Threeteen of the warmest years in the 163-year record all have occurred since 2000. 
 
 ```{R avgtmp, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -169,6 +179,8 @@ ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) +
 ```
 
 ## Top 10 Coldest Major Cities between 1850 - 2013
+
+With given average temperature for every major city, on Bar chart bellow we have top 10 coldest cities in the world with descending rank. 
 
 ```{r TempByMajorCity, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -197,6 +209,8 @@ ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + ge
 
 ## Top 10 Hottest Major Cities between 1850 - 2013
 
+While we have drastic difference between top 10 coldest major cities in the world, the top 10 cities are very similar in comparasing with average temperature across century and half.  
+
 ```{r hottest cities, echo=TRUE}
 # Plotting the top 10 hottest cities
 ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Hottest Cities") + ylab("Maximum Avergate Temp in (C)") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("Top 10 hotest cities between 1850 - 2013") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
@@ -206,6 +220,8 @@ ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geo
 
 
 ## Coldest vs. Hottest Cities on WorldMap
+
+Using longitude and latitude informations for given data, we can plot the locatin of top 10 coldest and top 10 hotest cities on the world map. It is interesting to see that all coldest cities, with excpetion to Santiago, are scatered at norhter hemisphere. Top 10 hotest cities are scatered over the south hemisphere. 
 
 ```{r worldmap, echo=TRUE}
 # Converting Longitude and latitude in correct format in Top10coldest dataset
@@ -275,6 +291,8 @@ Hydrofluorocarbons, perfluorocarbons, sulfur hexafluoride, and nitrogen trifluor
 
 ## Average Temperature In Atlanta
 
+Since this is a city of my residence I am going to explore the trend of Average temperature between 1850 and 2013
+
 ```{r, echo=TRUE}
 # Extracting data for Atlanta
 ATLTemp <- filter(TempByAllCities, City == "Atlanta")
@@ -282,16 +300,9 @@ ATLTempSum <- ATLTemp %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTem
 ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geom_smooth(method="loess", color = 'red', size = 2) + labs(title="Average Temperature in Atlanta ", x="Year", y="Avg. Temperature in (C)") +theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 
 ```
-
-## Temperature uncertanity for data used in Descriptive Analytics
-
-```{r, echo=TRUE}
-AvgTempUncert <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTempUnc = mean(AverageTemperatureUncertainty))
-ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
-     geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
-```
-
 ## Exploring Seasons
+
+Using the temperature data set from every city, we are going to explore seasonality trend for years between 1850 and 2013
 
 ```{r}
 SeasonTrend <- TempByAllCities %>% group_by(Year, Month) %>% summarise(AvgTemp = mean(AverageTemperature))
@@ -299,6 +310,18 @@ SeasonTrendPlot <- ts(SeasonTrend$AvgTemp, start = c(min(SeasonTrend$Year),1), e
 SeasonTrendPlot <- stl(SeasonTrendPlot, s.window = "period")
 plot(SeasonTrendPlot)
 ```
+
+## Temperature uncertanity for data used in Descriptive Analytics
+
+With giving sets of data we have level of uncertainity due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have decline of uncertainity from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with exception to two outliers in 2013. 
+
+```{r, echo=TRUE}
+AvgTempUncert <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTempUnc = mean(AverageTemperatureUncertainty))
+ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
+     geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+```
+
+
 
 ## Conclusions
 
