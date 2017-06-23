@@ -106,6 +106,42 @@ library(sp)
 library(rworldmap)
 ```
 
+## Temperature Uncertanity for Data used in Descriptive Analytics
+
+With given sets of data we have a level of uncertainity due to imperfections in measurements and collection of the average temperature. Based on the graph below we can see that between 1850 and 1975 we have a decline of uncertainity from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. 
+
+```{r, echo=TRUE}
+TempByAllCities <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByCity.csv")
+# Eliminating NAs
+TempByAllCities <- na.omit(TempByAllCities)
+# Converting dt to correct dates
+TempByAllCities$dt <- as.Date(TempByAllCities$dt, "%Y-%m-%d")
+# Filtering data range
+TempByAllCities <- filter(TempByAllCities, dt>= "1849-12-31")
+# Extracting the month out of dt
+TempByAllCities$Month <- month(TempByAllCities$dt)
+# Converting Month number to Month Name
+TempByAllCities$Month <- month(TempByAllCities$Month, label = TRUE)
+# Extracting the year out of dt
+TempByAllCities$Year <- year(TempByAllCities$dt)
+# Converting Lat and Long to correct format
+TempByAllCities$LAT <- as.numeric(gsub("N|E|S|W", "",TempByAllCities$Latitude))*ifelse(grepl("S",TempByAllCities$Latitude),-1,1)
+TempByAllCities$LONG <- as.numeric(gsub("N|E|S|W", "", TempByAllCities$Longitude))*ifelse(grepl("W",TempByAllCities$Longitude),-1,1)
+AvgTempUncert <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTempUnc = mean(AverageTemperatureUncertainty))
+ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
+     geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+```
+
+## Exploring Seasons
+
+Using the temperature data set from every city, we are going to explore the seasonality trend for years between 1850 and 2013
+
+```{r}
+SeasonTrend <- TempByAllCities %>% group_by(Year, Month) %>% summarise(AvgTemp = mean(AverageTemperature))
+SeasonTrendPlot <- ts(SeasonTrend$AvgTemp, start = c(min(SeasonTrend$Year),1), end = c(max(SeasonTrend$Year),12), frequency = 12)
+SeasonTrendPlot <- stl(SeasonTrendPlot, s.window = "period")
+plot(SeasonTrendPlot)
+```
 
 ## Analysis Of Global Temperature (Land Vs Ocean)
 
@@ -243,22 +279,6 @@ mp2
 ## Average Temperature by all Cities
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
-TempByAllCities <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByCity.csv")
-# Eliminating NAs
-TempByAllCities <- na.omit(TempByAllCities)
-# Converting dt to correct dates
-TempByAllCities$dt <- as.Date(TempByAllCities$dt, "%Y-%m-%d")
-# Filtering data range
-TempByAllCities <- filter(TempByAllCities, dt>= "1849-12-31")
-# Extracting the month out of dt
-TempByAllCities$Month <- month(TempByAllCities$dt)
-# Converting Month number to Month Name
-TempByAllCities$Month <- month(TempByAllCities$Month, label = TRUE)
-# Extracting the year out of dt
-TempByAllCities$Year <- year(TempByAllCities$dt)
-# Converting Lat and Long to correct format
-TempByAllCities$LAT <- as.numeric(gsub("N|E|S|W", "",TempByAllCities$Latitude))*ifelse(grepl("S",TempByAllCities$Latitude),-1,1)
-TempByAllCities$LONG <- as.numeric(gsub("N|E|S|W", "", TempByAllCities$Longitude))*ifelse(grepl("W",TempByAllCities$Longitude),-1,1)
 # Grouping the dataset by Country and City
 TempByAllCitiesSum <- TempByAllCities %>% group_by(Country, City) %>% select(AverageTemperature, City ,LAT, LONG, Country) %>% summarise(avgTemp_start = mean(AverageTemperature), long = mean(LONG), lat = mean(LAT))
 # Focusing on year 2013
@@ -301,27 +321,6 @@ ATLTempSum <- ATLTemp %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTem
 ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geom_smooth(method="loess", color = 'red', size = 2) + labs(title="Average Temperature in Atlanta ", x="Year", y="Avg. Temperature in (C)") +theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 
 ```
-## Exploring Seasons
-
-Using the temperature data set from every city, we are going to explore the seasonality trend for years between 1850 and 2013
-
-```{r}
-SeasonTrend <- TempByAllCities %>% group_by(Year, Month) %>% summarise(AvgTemp = mean(AverageTemperature))
-SeasonTrendPlot <- ts(SeasonTrend$AvgTemp, start = c(min(SeasonTrend$Year),1), end = c(max(SeasonTrend$Year),12), frequency = 12)
-SeasonTrendPlot <- stl(SeasonTrendPlot, s.window = "period")
-plot(SeasonTrendPlot)
-```
-
-## Temperature Uncertanity for Data used in Descriptive Analytics
-
-With given sets of data we have a level of uncertainity due to imperfections in measurements and collection of the average temperature. Based on the graph below we can see that between 1850 and 1975 we have a decline of uncertainity from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. 
-
-```{r, echo=TRUE}
-AvgTempUncert <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTempUnc = mean(AverageTemperatureUncertainty))
-ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
-     geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
-```
-
 
 
 ## Conclusions
