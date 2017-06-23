@@ -24,48 +24,49 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-This project is meant to shed light on several questions related to climate changes. I will be using set of data from Kaggle.com which contains 3 files with temperature details in period of time between 1850 and 2013:
+This project is meant to shed light on several questions related to changes in the climate. I will be using a set of data from Kaggle.com which contains four files with temperature details in the period of time between 1850 and 2013:
 
 1. Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
-2. Global Average Land Temperature by State (GlobalLandTemperaturesByState.csv)
-3. Global Land Temperatures by Major City (GlobalLandTemperaturesByMajorCity.csv)
+2. Global Average Land Temperature by state (GlobalLandTemperaturesByState.csv)
+3. Global Land Temperatures by major cities (GlobalLandTemperaturesByMajorCity.csv)
+4. Global Land Temperatures by all cities (GlobalLandTemperaturesByMajorCity.csv)
 
 [Data Location:] (https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data)
 
 In this research, I will attempt to answer few questions below:
 
-1. What is the difference between Land and Ocean average temperature over the time? 
+1. What is the difference between the Land and Ocean average temperature over time? 
 2. What are the top 5 hottest and top 5 coldest major cities in the world?
-3. What is temperature trend for city of residence ( Atlanta)?
-4. What kind of climate we can expect in next 5 years, 10 years, 50 years and 100 years based on predictive analysis?
+3. What is the temperature trend for city of residence ( Atlanta)?
+4. What kind of climate can we expect in the next 5 years, 10 years, 50 years and 100 years based on Predictive Analysis?
 5. Is there an active global warming?
-6. What are key effects of global warming?
+6. What are the key effects of global warming?
 
-I will be providing the analysis that might include dynamic graphs and charts with short explanation of what each of them means and why is it important for us.
+I will be providing the analysis that might include dynamic graphs and charts with short explanations of what each of them mean and why it is important for us.
 
-# The evidence for rapid climate change
+# The evidence for Rapid Climate Change
 
-**Rais of the sea level**
+**Rise of the Sea Level**
 
 Global sea level rose about 8 inches in the last century. The rate in the last two decades, however, is nearly double that of the last century.
 
-**Raise of the ocean temperature**
+**Rise of the Ocean Temperature**
 
 The oceans have absorbed much of this increased heat, with the top 700 meters (about 2,300 feet) of ocean showing warming of 0.302 degrees Fahrenheit since 1969.
 
-**Shrinking of ice sheets**
+**Shrinking of Ice Sheets**
 
 The Greenland and Antarctic ice sheets have decreased in mass. Data from NASA's Gravity Recovery and Climate Experiment show Greenland lost 150 to 250 cubic kilometers (36 to 60 cubic miles) of ice per year between 2002 and 2006, while Antarctica lost about 152 cubic kilometers (36 cubic miles) of ice between 2002 and 2005.
 
-**Glacial retreat**
+**Glacial Retreat**
 
 Glaciers are retreating almost everywhere around the world — including in the Alps, Himalayas, Andes, Rockies, Alaska and Africa.
 
-**Ocean acidification**
+**Ocean Acidification**
 
-Since the beginning of the Industrial Revolution, the acidity of surface ocean waters has increased by about 30 percent.11,12 This increase is the result of humans emitting more carbon dioxide into the atmosphere and hence more being absorbed into the oceans. The amount of carbon dioxide absorbed by the upper layer of the oceans is increasing by about 2 billion tons per year.13,14
+Since the beginning of the Industrial Revolution, the acidity of surface ocean waters has increased by about 11,12. This increase is the result of humans emitting more carbon dioxide into the atmosphere and hence more being absorbed into the oceans. The amount of carbon dioxide absorbed by the upper layer of the oceans is increasing by about 2 billion tons per year. 13,14
 
-**Increase of the global temperature**
+**Increase of the Global Temperature**
 
 The Earth's climate has changed throughout history. Just in the last 650,000 years there have been seven cycles of glacial advance and retreat, with the abrupt end of the last ice age about 7,000 years ago marking the beginning of the modern climate era — and of human civilization. Most of these climate changes are attributed to very small variations in Earth’s orbit that change the amount of solar energy our planet receives.
 
@@ -108,7 +109,7 @@ library(rworldmap)
 
 ## Analysis Of Global Temperature (Land Vs Ocean)
 
-Based on the Average Temperature Graph bellow, we can see that average temperature of the land has been significantly increasing with higher rate than temperature of the ocean. Oceans are heating and cooling much faster than land due to low density of the water. There are few factors that could cause average land temperature to increase with higher rate than ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forest will allow larger amounts of greenhouse gases to enter the atmosphere(~15% carbon) and trap the solar rays and heat up the surface that once has been protected by forest. Industrial effects within developed and developing countries plays the significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes to 22% of world’s crbon emission. 
+Based on the Average Temperature Graph bellow, we can see that the average temperature of the land has been significantly increasing with higher rate than the temperature of the ocean. Oceans are heating and cooling much faster than land due to the low density of the water. There are a few factors that could cause the average land temperature to increase with a higher rate than the ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forests will allow larger amounts of greenhouse gases to enter the atmosphere(~15% carbon) and trap the solar rays and heat up the surface thathad once been protected by forest. Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s crbon emission. 
 
 ```{r TempGlobal, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -138,10 +139,10 @@ ggplot(data= Plot_ds, aes(x=Year, y= value, colour = variable)) +
 	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + facet_grid(Plot_ds$variable ~., scales = "free_y") + theme(legend.position="none")
 ```
 
-##Min and Max Average Temperature Trends
+##Minimum and Maximum Average Temperature Trends
 
-Analysis of temperature extremes over time requires daily maximum and minimum temperature data from stations with records of sufficient length, quality, completeness, and temporal homogeneity. Homogeneity of the daily temperature record is an especially difficult challenge due to stations experiencing varying degrees of change over time in location, instrumentation, observing practices, and siting conditions.
-In Graph below we can se the amplitudes of change for these extremes. It is clear that both temperature extremes across century and half are slightly increasing with corelation of ~90%. 
+Analysis of temperature extremes over time requires daily maximum and minimum temperature data from stations with records of sufficient length, quality, completeness, and temporal homogeneity. Homogeneity of the daily temperature record is an especially difficult challenge due to stations experiencing varying degrees of change over time in location, instrumentation, observing practices, and sitting conditions.
+In the graph below we can see the amplitudes of change for these extremes. It is clear that both temperature extremes across a century and a half are slightly increasing with corelation of ~90%. 
 
 ```{r min max, echo=TRUE}
 # Extracting min and max values 
@@ -158,7 +159,7 @@ cor(GlobalTemperaturesMinMax$AvgMaxTemp, GlobalTemperaturesMinMax$AvgMinTemp)
 
 ## Average Temperature Difference Between 1850 and 2013
 
-The Graph bellow illustrates the change in global surface temperature relative to 1850-2013 average temperatures. Threeteen of the warmest years in the 163-year record all have occurred since 2000. 
+The Graph bellow illustrates the change in global surface temperature relative to 1850-2013 average temperatures. Thrirteen of the warmest years in the 163-year record all have occurred since 2000. 
 
 ```{R avgtmp, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -180,7 +181,7 @@ ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) +
 
 ## Top 10 Coldest Major Cities between 1850 - 2013
 
-With given average temperature for every major city, on Bar chart bellow we have top 10 coldest cities in the world with descending rank. 
+With the given average temperature for every major city, the bar chart bellow has the top 10 coldest cities in the world with descending rank. 
 
 ```{r TempByMajorCity, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -209,7 +210,7 @@ ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + ge
 
 ## Top 10 Hottest Major Cities between 1850 - 2013
 
-While we have drastic difference between top 10 coldest major cities in the world, the top 10 cities are very similar in comparasing with average temperature across century and half.  
+While we have a drastic difference from the top 10 coldest major cities in the world, the top 10 hottest cities are very similar in comparison in average temperature across a century and half.  
 
 ```{r hottest cities, echo=TRUE}
 # Plotting the top 10 hottest cities
@@ -221,7 +222,7 @@ ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geo
 
 ## Coldest vs. Hottest Cities on WorldMap
 
-Using longitude and latitude informations for given data, we can plot the locatin of top 10 coldest and top 10 hotest cities on the world map. It is interesting to see that all coldest cities, with excpetion to Santiago, are scatered at norhter hemisphere. Top 10 hotest cities are scatered over the south hemisphere. 
+Using longitude and latitude informations for given data, we can plot the locatin of the top 10 coldest and top 10 hotest cities on the world map. It is interesting to see that all coldest cities, with excpetion to Santiago, are scatered in the Northern Hemisphere. The top 10 hotest cities are scatered over the South Hemisphere. 
 
 ```{r worldmap, echo=TRUE}
 # Converting Longitude and latitude in correct format in Top10coldest dataset
@@ -271,27 +272,27 @@ m <- ggplot() + geom_map(data = worldMap, map = worldMap,aes(x = long, y = lat, 
 m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.2) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none') + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
 
-Based on World Map with average temperature changes, we can see that most significant temperature increase is measured in develoeped countries. It is expected for these countries to be the one who produces most of the greenhouse gasses such as some of these below:
+Based on World Map with average temperature changes, we can see that the most significant temperature increase is measured in develoeped countries. It is expected for these countries to be the ones who produce most of the greenhouse gasses such as some of these below:
 
-**Carbon dioxide (CO2)**
+**Carbon Dioxide (CO2)**
 
-Carbon dioxide enters the atmosphere through burning fossil fuels (coal, natural gas, and oil), solid waste, trees and wood products, and also as a result of certain chemical reactions (e.g., manufacture of cement). Carbon dioxide is removed from the atmosphere (or "sequestered") when it is absorbed by plants as part of the biological carbon cycle.
+Carbon Dioxide enters the atmosphere through burning fossil fuels (coal, natural gas, and oil), solid waste, trees and wood products, and also as a result of certain chemical reactions (e.g., manufacture of cement). Carbon Dioxide is removed from the atmosphere (or "sequestered") when it is absorbed by plants as part of the biological carbon cycle.
 
 **Methane (CH4)**
 
 Methane is emitted during the production and transport of coal, natural gas, and oil. Methane emissions also result from livestock and other agricultural practices and by the decay of organic waste in municipal solid waste landfills.
 
-**Nitrous oxide (N2O)**
+**Nitrous Oxide (N2O)**
 
-Nitrous oxide is emitted during agricultural and industrial activities, as well as during combustion of fossil fuels and solid waste.
+Nitrous Oxide is emitted during agricultural and industrial activities, as well as during combustion of fossil fuels and solid waste.
 
-**Fluorinated gases**
+**Fluorinated Gases**
 
-Hydrofluorocarbons, perfluorocarbons, sulfur hexafluoride, and nitrogen trifluoride are synthetic, powerful greenhouse gases that are emitted from a variety of industrial processes. Fluorinated gases are sometimes used as substitutes for stratospheric ozone-depleting substances (e.g., chlorofluorocarbons, hydrochlorofluorocarbons, and halons). These gases are typically emitted in smaller quantities, but because they are potent greenhouse gases, they are sometimes referred to as High Global Warming Potential gases ("High GWP gases").
+Hydrofluorocarbons, Perfluorocarbons, Sulfur Hexafluoride, and Nitrogen Trifluoride are synthetic, powerful greenhouse gases that are emitted from a variety of industrial processes. Fluorinated gases are sometimes used as substitutes for stratospheric ozone-depleting substances (e.g., chlorofluorocarbons, hydrochlorofluorocarbons, and halons). These gases are typically emitted in smaller quantities, but because they are potent greenhouse gases, they are sometimes referred to as High Global Warming Potential gases ("High GWP gases").
 
 ## Average Temperature In Atlanta
 
-Since this is a city of my residence I am going to explore the trend of Average temperature between 1850 and 2013
+Since this is a city of my residence I am going to explore the trend of Average temperature between 1850 and 2013 in Atlanta Georgia.
 
 ```{r, echo=TRUE}
 # Extracting data for Atlanta
@@ -302,7 +303,7 @@ ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geo
 ```
 ## Exploring Seasons
 
-Using the temperature data set from every city, we are going to explore seasonality trend for years between 1850 and 2013
+Using the temperature data set from every city, we are going to explore the seasonality trend for years between 1850 and 2013
 
 ```{r}
 SeasonTrend <- TempByAllCities %>% group_by(Year, Month) %>% summarise(AvgTemp = mean(AverageTemperature))
@@ -311,9 +312,9 @@ SeasonTrendPlot <- stl(SeasonTrendPlot, s.window = "period")
 plot(SeasonTrendPlot)
 ```
 
-## Temperature uncertanity for data used in Descriptive Analytics
+## Temperature Uncertanity for Data used in Descriptive Analytics
 
-With giving sets of data we have level of uncertainity due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have decline of uncertainity from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with exception to two outliers in 2013. 
+With given sets of data we have a level of uncertainity due to imperfections in measurements and collection of the average temperature. Based on the graph below we can see that between 1850 and 1975 we have a decline of uncertainity from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. 
 
 ```{r, echo=TRUE}
 AvgTempUncert <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTempUnc = mean(AverageTemperatureUncertainty))
