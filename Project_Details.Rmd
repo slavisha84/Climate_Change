@@ -169,7 +169,7 @@ GlobalTemperaturesSummary <- GlobalTemperatures %>% group_by(Year) %>% summarise
 # Ploting Avgerage Ocean Temperature and Average Land temperature on timescale
 Plot_ds <-melt(GlobalTemperaturesSummary, id ="Year")
 ggplot(data= Plot_ds, aes(x=Year, y= value, colour = variable)) +
-	   geom_line(size = 1) + coord_cartesian(ylim = c(5, 30)) + xlab("Years") + ylab("Average Temperature") +
+	   geom_line(size = 1) + coord_cartesian(ylim = c(5, 25)) + xlab("Years") + ylab("Average Temperature") +
 	   theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
 	   ggtitle("Average Temperature Trend") +
 	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + facet_grid(Plot_ds$variable ~., scales = "free_y") + theme(legend.position="none")
@@ -333,7 +333,23 @@ Machine learning using algorithms to predict future temperature levels.
 
 ## Prediction for next 10 years
 
-```{r}
+```{r, echo=TRUE}
+# Getting Avg Temp for every city per year
+NewYearsSet <- read_csv("C:/GIT/R/Climate_Change/NewYearsSet.csv")
+AllCityTempSum <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
+AllCt.Tmp.Year <- subset(AllCityTempSum, select = c(Year, AvgTemp))
+summary(AllCt.Tmp.Year)
+cor(AllCt.Tmp.Year, use="pairwise")
+plot(AllCt.Tmp.Year)
+# Leaner Regression
+Mod.AllCityTemp <- lm(AvgTemp ~ Year, data = AllCt.Tmp.Year)
+summary(Mod.AllCityTemp)
+prediction <- predict(Mod.AllCityTemp, NewYearsSet, interval = "predict")
+View(prediction)
+NewYearsSet$AvgTemp <- prediction[,1]
+PredictedPlot <-bind_rows(AllCityTempSum,NewYearsSet)
+
+ggplot(data = PredictedPlot, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=3, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
 
 ```
 
