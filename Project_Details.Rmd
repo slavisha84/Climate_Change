@@ -1,7 +1,7 @@
 ---
-title: "Climate Change"
-author: "Slavoljub Petkovic"
-date: "May 21, 2017"
+title: "Climate Change Analysis"
+author: "By:Slavoljub Petkovic"
+date: "Jun, 2017"
 output:
   html_document:
     fig_height: 4.5
@@ -24,56 +24,35 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-This project is meant to shed light on several questions related to changes in the climate. I will be using a set of data from Kaggle.com which contains four files with temperature details in the period of time between 1850 and 2013:
+In the past 4.5 billion years, Earth has gone through numerous climate changes that reshaped its surface and ecosystem, causing extinction and evolution itself. While the Sun is the biggest influence on our climate, the composition of Earth's atmospheric gasses defines how much of the Sun's energy will be trapped under the atmosphere. Ultimately the principles of thermodynamics while increasing the entropy, will govern the future of the Earth. Infinitesimal changes within a system in the present can cause changes within system in the future with a tremendous magnitude leaving the system incomparable to its primal state.
 
-1. Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
-2. Global Average Land Temperature by state (GlobalLandTemperaturesByState.csv)
-3. Global Land Temperatures by major cities (GlobalLandTemperaturesByMajorCity.csv)
-4. Global Land Temperatures by all cities (GlobalLandTemperaturesByMajorCity.csv)
+In this study, I will focus on a few questions related to current climate changes. For the research, I will be using the Data set published on Kaggle.com which contains data with temperature details in the period between 1750 and 2013:
+
+1.	Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
+2.	Global Average Land Temperature by state (GlobalLandTemperaturesByState.csv)
+3.	Global Land Temperatures by major cities (GlobalLandTemperaturesByMajorCity.csv)
+4.	Global Land Temperatures by all cities (GlobalLandTemperaturesByMajorCity.csv)
 
 [Data Location:] (https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data)
 
-In this research, I will attempt to answer few questions below:
+Questions of Interest:
 
-1. What is the difference between the Land and Ocean average temperature over time? 
-2. What are the top 5 hottest and top 5 coldest major cities in the world?
-3. What is the temperature trend for city of residence ( Atlanta)?
-4. What kind of climate can we expect in the next 5 years, 10 years, 50 years and 100 years based on Predictive Analysis?
-5. Is there an active global warming?
-6. What are the key effects of global warming?
-
-I will be providing the analysis that might include dynamic graphs and charts with short explanations of what each of them mean and why it is important for us.
-
-# The evidence for Rapid Climate Change
-
-**Rise of the Sea Level**
-
-Global sea level rose about 8 inches in the last century. The rate in the last two decades, however, is nearly double that of the last century.
-
-**Rise of the Ocean Temperature**
-
-The oceans have absorbed much of this increased heat, with the top 700 meters (about 2,300 feet) of ocean showing warming of 0.302 degrees Fahrenheit since 1969.
-
-**Shrinking of Ice Sheets**
-
-The Greenland and Antarctic ice sheets have decreased in mass. Data from NASA's Gravity Recovery and Climate Experiment show Greenland lost 150 to 250 cubic kilometers (36 to 60 cubic miles) of ice per year between 2002 and 2006, while Antarctica lost about 152 cubic kilometers (36 cubic miles) of ice between 2002 and 2005.
-
-**Glacial Retreat**
-
-Glaciers are retreating almost everywhere around the world — including in the Alps, Himalayas, Andes, Rockies, Alaska and Africa.
-
-**Ocean Acidification**
-
-Since the beginning of the Industrial Revolution, the acidity of surface ocean waters has increased by about 11,12. This increase is the result of humans emitting more carbon dioxide into the atmosphere and hence more being absorbed into the oceans. The amount of carbon dioxide absorbed by the upper layer of the oceans is increasing by about 2 billion tons per year. 13,14
-
-**Increase of the Global Temperature**
-
-The Earth's climate has changed throughout history. Just in the last 650,000 years there have been seven cycles of glacial advance and retreat, with the abrupt end of the last ice age about 7,000 years ago marking the beginning of the modern climate era — and of human civilization. Most of these climate changes are attributed to very small variations in Earth’s orbit that change the amount of solar energy our planet receives.
+1.	What is the measurement problem and uncertainty level within these data sets?
+2.	What is the difference between the land and ocean average temperatures over time?
+3.	How do temperature extremes relate to average temperature?
+4.	What is the temperature trend over all the states/countries in the world?
+5.	What are the top 10 coldest and hottest major cities in the world?
+6.	What are the locations of the coldest vs. hottest major cities?
+7.	How does the average temperature difference look on a global scale?
+8.	What is the temperature trend for a city of residence (Atlanta)?
+9.	What kind of climate can we expect for the next 5 years, 10 years, 50 years and 100 years based on Predictive Analysis?
+10.	Is there active global warming?
 
 # Descriptive Analytics
 
 ```{r ilibraries, message=FALSE, warning=FALSE, include=FALSE}
-#install.packages(magrittr)
+#installing all requred packages 
+# install.packages(magrittr)
 #install.packages(dplyr)
 #install.packages(tidyr)
 #install.packages(readr)
@@ -88,6 +67,8 @@ The Earth's climate has changed throughout history. Just in the last 650,000 yea
 #install.packages(RColorBrewer)
 #install.packages(sp)
 #install.packages(rworldmap)
+
+#Loading all installed packages for this project
 
 library(magrittr)
 library(dplyr)
@@ -108,9 +89,11 @@ library(rworldmap)
 
 ## Temperature Uncertanity for Data used in Descriptive Analytics
 
-With given sets of data we have a level of uncertainity due to imperfections in measurements and collection of the average temperature. Based on the graph below we can see that between 1850 and 1975 we have a decline of uncertainity from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. 
+With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013.  
 
 ```{r, echo=TRUE}
+# loading data set to explore data uncertainty. Eliminating NA values, standardizing dates and creating data sets for analysis.  
+
 TempByAllCities <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByCity.csv")
 # Eliminating NAs
 TempByAllCities <- na.omit(TempByAllCities)
@@ -134,7 +117,7 @@ ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
 
 ## Exploring Seasons
 
-Using the temperature data set from every city, we are going to explore the seasonality trend for years between 1850 and 2013
+Using the temperature data set from every city, we are going to explore the seasonality trend for the years between 1850 and 2013. On the Seasonality graph below we can see the average temperature increase over the century and half.
 
 ```{r}
 SeasonTrend <- TempByAllCities %>% group_by(Year, Month) %>% summarise(AvgTemp = mean(AverageTemperature))
@@ -143,9 +126,9 @@ SeasonTrendPlot <- stl(SeasonTrendPlot, s.window = "period")
 plot(SeasonTrendPlot)
 ```
 
-## Analysis Of Global Temperature (Land Vs Ocean)
+## Analysis of Global Temperature (Land Vs Ocean)
 
-Based on the Average Temperature Graph bellow, we can see that the average temperature of the land has been significantly increasing with higher rate than the temperature of the ocean. Oceans are heating and cooling much faster than land due to the low density of the water. There are a few factors that could cause the average land temperature to increase with a higher rate than the ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forests will allow larger amounts of greenhouse gases to enter the atmosphere(~15% carbon) and trap the solar rays and heat up the surface thathad once been protected by forest. Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s crbon emission. 
+ased on the Average Temperature Graph bellow, we can see that the average temperature of the land has been significantly increasing with a higher rate than the temperature of the ocean. Oceans are heating and cooling much faster than land due to the low density of the water. There are a few factors that could cause the average land temperature to increase with a higher rate than the ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forests will allow larger amounts of greenhouse gases to enter the atmosphere (~15% carbon) and trap the solar rays and heat up the surface that had once been protected by forest. Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
 
 ```{r TempGlobal, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -177,8 +160,7 @@ ggplot(data= Plot_ds, aes(x=Year, y= value, colour = variable)) +
 
 ##Minimum and Maximum Average Temperature Trends
 
-Analysis of temperature extremes over time requires daily maximum and minimum temperature data from stations with records of sufficient length, quality, completeness, and temporal homogeneity. Homogeneity of the daily temperature record is an especially difficult challenge due to stations experiencing varying degrees of change over time in location, instrumentation, observing practices, and sitting conditions.
-In the graph below we can see the amplitudes of change for these extremes. It is clear that both temperature extremes across a century and a half are slightly increasing with corelation of ~90%. 
+Analysis of temperature extremes over time require daily maximum and minimum temperature data from stations with records of sufficient length, quality, completeness, and temporal homogeneity. Homogeneity of the daily temperature record is a challenge due to stations experiencing variation in degrees of change over time for particular locations, instrumentation, observing practices, and sitting conditions. On the Min and Max Average Temperature Trend graph below, we can see the amplitudes of change for these extremes. It is clear that both temperature extremes across a century and a half are slightly increasing. the correlation between these extremes is ~90%. 
 
 ```{r min max, echo=TRUE}
 # Extracting min and max values 
@@ -187,7 +169,7 @@ GlobalTemperaturesMinMax <- GlobalTemperatures %>% group_by(Year) %>% summarise(
 Plot_minMAx <-melt(GlobalTemperaturesMinMax, id = "Year")
 # Plotting min and max temperature trend. 
 ggplot(data = Plot_minMAx, aes(Year, value, variable)) + geom_line(size = .5) + geom_smooth(size = 1) + facet_grid(Plot_minMAx$variable ~ ., scales = "free_y") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
-	   ggtitle("Min And Max Average temperature Trend") +
+	   ggtitle("Min And Max Average Temperature Trend") +
 	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 # Runing the coorelation between max and min temperature
 cor(GlobalTemperaturesMinMax$AvgMaxTemp, GlobalTemperaturesMinMax$AvgMinTemp)
@@ -195,7 +177,7 @@ cor(GlobalTemperaturesMinMax$AvgMaxTemp, GlobalTemperaturesMinMax$AvgMinTemp)
 
 ## Average Temperature Difference Between 1850 and 2013
 
-The Graph bellow illustrates the change in global surface temperature relative to 1850-2013 average temperatures. Thrirteen of the warmest years in the 163-year record all have occurred since 2000. 
+The All State Average Temperature trend bellow illustrates the change in global surface temperature relative to 1850-2013 average temperatures. Thirteen of the warmest years in the 163-year record all have occurred since 2000. With a focus on the period between 1975 and 2013 the data shows nearly a 1-degree Celsius increase with respect to data uncertainty.
 
 ```{R avgtmp, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -217,7 +199,7 @@ ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) +
 
 ## Top 10 Coldest Major Cities between 1850 - 2013
 
-With the given average temperature for every major city, the bar chart bellow has the top 10 coldest cities in the world with descending rank. 
+With the given average temperature for every major city, the bar chart below has the top 10 coldest cities in the world with descending rank.
 
 ```{r TempByMajorCity, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -246,7 +228,7 @@ ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + ge
 
 ## Top 10 Hottest Major Cities between 1850 - 2013
 
-While we have a drastic difference from the top 10 coldest major cities in the world, the top 10 hottest cities are very similar in comparison in average temperature across a century and half.  
+While we have a drastic difference within the top 10 coldest major cities in the world, the top 10 hottest cities are very similar in comparison in their average temperature across a century and half.  
 
 ```{r hottest cities, echo=TRUE}
 # Plotting the top 10 hottest cities
@@ -254,11 +236,9 @@ ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geo
 ```
 
 
-
-
 ## Coldest vs. Hottest Cities on WorldMap
 
-Using longitude and latitude informations for given data, we can plot the locatin of the top 10 coldest and top 10 hotest cities on the world map. It is interesting to see that all coldest cities, with excpetion to Santiago, are scatered in the Northern Hemisphere. The top 10 hotest cities are scatered over the South Hemisphere. 
+Using longitude and latitude information for the given data, we can plot the location of the top 10 coldest and top 10 hottest cities on the world map. It is interesting to see that all of the coldest cities, with the exception of Santiago, are scattered in the Northern Hemisphere. The top 10 hottest cities are scattered around the Equator. 
 
 ```{r worldmap, echo=TRUE}
 # Converting Longitude and latitude in correct format in Top10coldest dataset
@@ -278,6 +258,8 @@ mp2
 
 ## Average Temperature by all Cities
 
+On World Map with average temperature changes, we can see that the most significant temperature increase is measured in develoeped countries. These countries to be the ones who produce most of the greenhouse gasses.
+
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 # Grouping the dataset by Country and City
 TempByAllCitiesSum <- TempByAllCities %>% group_by(Country, City) %>% select(AverageTemperature, City ,LAT, LONG, Country) %>% summarise(avgTemp_start = mean(AverageTemperature), long = mean(LONG), lat = mean(LAT))
@@ -292,7 +274,7 @@ m <- ggplot() + geom_map(data = worldMap, map = worldMap,aes(x = long, y = lat, 
 m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.2) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none') + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
 
-Based on World Map with average temperature changes, we can see that the most significant temperature increase is measured in develoeped countries. It is expected for these countries to be the ones who produce most of the greenhouse gasses such as some of these below:
+## Green House Gasses**
 
 **Carbon Dioxide (CO2)**
 
@@ -312,129 +294,88 @@ Hydrofluorocarbons, Perfluorocarbons, Sulfur Hexafluoride, and Nitrogen Trifluor
 
 ## Average Temperature In Atlanta
 
-Since this is a city of my residence I am going to explore the trend of Average temperature between 1850 and 2013 in Atlanta Georgia.
+Since this is a city of my residence I am going to explore the trend of Average temperature between 1850 and 2013 in Atlanta (Georgia).
 
 ```{r, echo=TRUE}
-# Extracting data for Atlanta
+# Extracting data for Atlanta and ploting on scatter plot 
 ATLTemp <- filter(TempByAllCities, City == "Atlanta")
 ATLTempSum <- ATLTemp %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
 ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geom_smooth(method="loess", color = 'red', size = 2) + labs(title="Average Temperature in Atlanta ", x="Year", y="Avg. Temperature in (C)") +theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 
 ```
 
-
-## Conclusions
-
-
-
-
 # Predictive Analytics
 Machine learning using algorithms to predict future temperature levels.
 
-## Prediction for next 10 years
+## Prediction for next 100 years
 
 ```{r, echo=TRUE}
 # Getting Avg Temp for every city per year
 NewYearsSet <- read_csv("C:/GIT/R/Climate_Change/NewYearsSet.csv")
 AllCityTempSum <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
 AllCt.Tmp.Year <- subset(AllCityTempSum, select = c(Year, AvgTemp))
+# Exmploring the data structure
 summary(AllCt.Tmp.Year)
+# Exploring cooralation between time and average temperature
 cor(AllCt.Tmp.Year, use="pairwise")
+# plotting the trend
 plot(AllCt.Tmp.Year)
-# Leaner Regression
+# Leaner Regression on all cities over century and half
 Mod.AllCityTemp <- lm(AvgTemp ~ Year, data = AllCt.Tmp.Year)
+# Exporing the results
 summary(Mod.AllCityTemp)
+# Runing the prediction
 prediction <- predict(Mod.AllCityTemp, NewYearsSet, interval = "predict")
+# Observing the prediction
 View(prediction)
+# Introducing new set of years for forecasting
 NewYearsSet$AvgTemp <- prediction[,1]
+# Adding the values
 PredictedPlot <-bind_rows(AllCityTempSum,NewYearsSet)
-
+# plotting the linear regression with prediction
 ggplot(data = PredictedPlot, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=3, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
-
 ```
 
-## Prediction for next 50 years
+# NASA`s findings on Rapid Climate Change***
 
-```{r}
+**Rise of the Sea Level**
 
-```
+In past centruy global sea level rose ~ 8 inches. This rate nearly dobuled in last two decades. 
 
-## Prediction for next 100 years
+**Rise of the Ocean Temperature**
 
-```{r}
 
-```
+The oceans have absorbed much of this increased heat, with the top 700 meters (about 2,300 feet) of ocean showing warming of 0.302 degrees Fahrenheit since 1969.
 
+**Shrinking of Ice Sheets**
+
+The Greenland and Antarctic ice sheets have decreased in mass. Data from NASA's Gravity Recovery and Climate Experiment show Greenland lost 150 to 250 cubic kilometers (36 to 60 cubic miles) of ice per year between 2002 and 2006, while Antarctica lost about 152 cubic kilometers (36 cubic miles) of ice between 2002 and 2005.
+
+**Glacial Retreat**
+
+Glaciers are retreating almost everywhere around the world — including in the Alps, Himalayas, Andes, Rockies, Alaska and Africa.
+
+**Ocean Acidification**
+
+Since the beginning of the Industrial Revolution, the acidity of surface ocean waters has increased by about 11,12. This increase is the result of humans emitting more carbon dioxide into the atmosphere and hence more being absorbed into the oceans. The amount of carbon dioxide absorbed by the upper layer of the oceans is increasing by about 2 billion tons per year. 13,14
+
+**Increase of the Global Temperature**
+
+The Earth's climate has changed throughout history. Just in the last 650,000 years there have been seven cycles of glacial advance and retreat, with the abrupt end of the last ice age about 7,000 years ago marking the beginning of the modern climate era — and of human civilization. Most of these climate changes are attributed to very small variations in Earth’s orbit that change the amount of solar energy our planet receives.
+
+
+# Conclusion
+
+Based on conducted analysis, we can see that average temperature trend has highest growth in the past 3 decades. Since this research was not based on analysis of level of Green Gasses emition, I am unable to establish ratio of human influence on global warming versus natural event.  
+While every event in the system in naturaly-logical cosenquence of the even that prior, as a civilization "Type 0" we might not be able to influnece Sun`s radiation spectrum but we can adjust our own behaviour.  
 
 # References
 
-IPCC Fifth Assessment Report, Summary for Policymakers
+** [EPA:]  (https://www.epa.gov/ghgemissions/overview-greenhouse-gases)
 
-B.D. Santer et.al., “A search for human influences on the thermal structure of the atmosphere,” Nature vol 382, 4 July 1996, 39-46
+***[NASA:] (https://climate.nasa.gov/evidence/)
 
-Gabriele C. Hegerl, “Detecting Greenhouse-Gas-Induced Climate Change with an Optimal Fingerprint Method,” Journal of Climate, v. 9, October 1996, 2281-2306
 
-V. Ramaswamy et.al., “Anthropogenic and Natural Influences in the Evolution of Lower Stratospheric Cooling,” Science 311 (24 February 2006), 1138-1141
-
-B.D. Santer et.al., “Contributions of Anthropogenic and Natural Forcing to Recent Tropopause Height Changes,” Science vol. 301 (25 July 2003), 479-483.
-
-In the 1860s, physicist John Tyndall recognized the Earth's natural greenhouse effect and suggested that slight changes in the atmospheric composition could bring about climatic variations. In 1896, a seminal paper by Swedish scientist Svante Arrhenius first predicted that changes in the levels of carbon dioxide in the atmosphere could substantially alter the surface temperature through the greenhouse effect.
-
-National Research Council (NRC), 2006. Surface Temperature Reconstructions For the Last 2,000 Years. National Academy Press, Washington, D.C.
-
-http://earthobservatory.nasa.gov/Features/GlobalWarming/page3.php
-
-https://www.ipcc.ch/pdf/assessment-report/ar5/syr/AR5_SYR_FINAL_SPM.pdf
-
-Church, J. A. and N.J. White (2006), A 20th century acceleration in global sea level rise, Geophysical Research Letters, 33, L01602, doi:10.1029/2005GL024826.
-
-The global sea level estimate described in this work can be downloaded from the CSIRO website.
-
-https://www.ncdc.noaa.gov/indicators/
-
-http://www.cru.uea.ac.uk/cru/data/temperature
-
-http://data.giss.nasa.gov/gistemp
-
-https://www.giss.nasa.gov/research/news/20170118/)  
- 
-
-Levitus, et al, "Global ocean heat content 1955–2008 in light of recently revealed instrumentation problems," Geophys. Res. Lett. 36, L07608 (2009).
-
-L. Polyak, et.al., “History of Sea Ice in the Arctic,” in Past Climate Variability and Change in the Arctic and at High Latitudes, U.S. Geological Survey, Climate Change Science Program Synthesis and Assessment Product 1.2, January 2009, chapter 7
-
-R. Kwok and D. A. Rothrock, “Decline in Arctic sea ice thickness from submarine and ICESAT records: 1958-2008,” Geophysical Research Letters, v. 36, paper no. L15501, 2009
-
-http://nsidc.org/sotc/sea_ice.html
-
-National Snow and Ice Data Center
-
-World Glacier Monitoring Service
-
-"Attribution of Extreme Weather Events in the Context of Climate Change," National Academies Press, 2016
-https://www.nap.edu/read/21852/chapter/1
-
-Kunkel, K. et al, "Probable maximum precipitation and climate change," Geophysical Research Letters, (12 April 2013) DOI: 10.1002/grl.50334 
-
-Kunkel, K. et al, "Monitoring and Understanding Trends in Extreme Storms: State of the Knowledge," Bulletin of the American Meteorological Society, 2012.
-
-http://lwf.ncdc.noaa.gov/extremes/cei.html
-
-http://www.pmel.noaa.gov/co2/story/What+is+Ocean+Acidification%3F
-
-http://www.pmel.noaa.gov/co2/story/Ocean+Acidification
-
-C. L. Sabine et.al., “The Oceanic Sink for Anthropogenic CO2,” Science vol. 305 (16 July 2004), 367-371
-
-Copenhagen Diagnosis, p. 36.
-
-National Snow and Ice Data Center
-
-C. Derksen and R. Brown, "Spring snow cover extent reductions in the 2008-2012 period exceeding climate model projections," GRL, 39:L19504
-
-http://nsidc.org/cryosphere/sotc/snow_extent.html
-
-Rutgers University Global Snow Lab, Data History Accessed August 29, 2011.
 
 
 
