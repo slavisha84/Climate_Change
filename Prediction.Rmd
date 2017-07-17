@@ -1,0 +1,138 @@
+---
+title: "Prediction"
+author: "SP"
+date: "July 15, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Time Series
+
+## Load Packages
+```{r}
+
+library(ggplot2)
+library(forecast)
+library(tseries)
+library(readr)
+library(dplyr)
+
+
+```
+
+# Global Temperature Forecasting
+
+For Global temperature forecasting I will use ARIMA model within R. 
+
+## Data Examination
+
+```{r}
+# For predictive model we will use GlobalTemperatures data set from period of 1975 to 2010
+gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+# Exploring the structure of data set
+View(gt)
+str(gt)
+summary(gt)
+# Isolating subset of data
+gt <- select(gt, dt, LandAverageTemperature)
+# Renaming column LandAverageTemperature to AvgTemp
+colnames(gt)[2] <-"AvgTemp"
+# Extrapolating subset of data after 1975
+gt$dt <- as.Date(gt$dt)
+gtm <- subset(gt, dt>= "1974-1-12")
+#plotting data
+ggplot(gtm, aes(dt, AvgTemp)) + geom_line() + scale_x_date('Year')  + ylab("Avg. Temperature") + xlab("")
+```
+
+
+```{r}
+# Removing Outliers
+count_AvgTmp =ts(gtm[c("AvgTemp")])
+gtm$AvgTempClean = tsclean(count_AvgTmp)
+ggplot() +  geom_line(data = gtm, aes(x = dt, y = AvgTempClean)) + ylab('Avg. Temperature')
+```
+
+
+
+```{r}
+# plotting Moving Average per month
+gtm = na.omit(gtm)
+gtm$AvgTempMa = ma(gtm$AvgTempClean, order = 30)
+
+ggplot() +
+  geom_line(data = gtm, aes(x = dt, y = AvgTempClean, colour = "Counts")) +
+  geom_line(data = gtm, aes(x = dt, y = AvgTempMa,   colour = "Monthly Moving Average")) +ylab('AvgTemp')
+
+```
+
+## Decomposing the Data
+
+```{r}
+# Specifying periodicity of data
+AvgTemp_Ma = ts(na.omit(gtm$AvgTempMa), frequency=30)
+# Using stl function for decomposition and forecasting series. 
+decomp = stl(AvgTemp_Ma, s.window="periodic")
+# Removing sesonality
+deseasonal_AvgTemp <- seasadj(decomp)
+plot(decomp)
+
+```
+
+## Stationarity
+
+```{r}
+# Checking for stationarity using Dickey Fuller test
+adf.test(AvgTemp_Ma, alternative = "stationary")
+
+
+```
+##  Autocorrelations and Choosing Model Order
+
+```{r}
+# Autocorrelation plot
+Acf(AvgTemp_Ma, main='')
+# Partial autocorrelation plot
+Pacf(AvgTemp_Ma, main='')
+
+```
+
+The PACF showes spikes on lags 1-8 
+
+```{r}
+AvgTempDif = diff(deseasonal_AvgTemp, differences = 1)
+plot(AvgTempDif)
+adf.test(AvgTempDif, alternative = "stationary")
+
+```
+
+```{r}
+Acf(AvgTempDif, main='ACF for Differenced Series')
+
+Pacf(AvgTempDif, main='PACF for Differenced Series')
+
+
+```
+
+## Fitting an ARIMA model
+
+```{r}
+# Using AutoARIMA to geneter a set of optimal (p,d,q)
+auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
+
+fit <- auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
+tsdisplay(residuals(fit), lag.max=30, main='(1,1,1) Model Residuals')
+
+
+```
+
+## Evaluate and Iterate
+
+```{r}
+fit2 = arima(deseasonal_AvgTemp, order=c(11,1,14))
+fit2
+tsdisplay(residuals(fit2), lag.max=100, main='Seasonal Model Residuals')
+
+```

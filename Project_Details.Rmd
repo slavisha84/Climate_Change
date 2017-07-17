@@ -52,7 +52,7 @@ Questions of Interest:
 
 ```{r ilibraries, message=FALSE, warning=FALSE, include=FALSE}
 #installing all requred packages 
-# install.packages(magrittr)
+#install.packages(magrittr)
 #install.packages(dplyr)
 #install.packages(tidyr)
 #install.packages(readr)
@@ -67,9 +67,10 @@ Questions of Interest:
 #install.packages(RColorBrewer)
 #install.packages(sp)
 #install.packages(rworldmap)
+#install.packages("forecast")
+#install.packages("tseries")
 
 #Loading all installed packages for this project
-
 library(magrittr)
 library(dplyr)
 library(tidyr)
@@ -85,6 +86,8 @@ library(gridExtra)
 library(RColorBrewer)
 library(sp)
 library(rworldmap)
+library(forecast)
+library(tseries)
 ```
 
 ## Temperature Uncertanity for Data used in Descriptive Analytics
@@ -304,37 +307,114 @@ ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geo
 
 ```
 
-# Predictive Analytics
-Machine learning using algorithms to predict future temperature levels.
+# Global Temperature Forecasting
 
-## Prediction for next 100 years
+For Global temperature forecasting I will use ARIMA model within R. 
 
-```{r, echo=TRUE}
-# Getting Avg Temp for every city per year
-NewYearsSet <- read_csv("C:/GIT/R/Climate_Change/NewYearsSet.csv")
-AllCityTempSum <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
-AllCt.Tmp.Year <- subset(AllCityTempSum, select = c(Year, AvgTemp))
-# Exmploring the data structure
-summary(AllCt.Tmp.Year)
-# Exploring cooralation between time and average temperature
-cor(AllCt.Tmp.Year, use="pairwise")
-# plotting the trend
-plot(AllCt.Tmp.Year)
-# Leaner Regression on all cities over century and half
-Mod.AllCityTemp <- lm(AvgTemp ~ Year, data = AllCt.Tmp.Year)
-# Exporing the results
-summary(Mod.AllCityTemp)
-# Runing the prediction
-prediction <- predict(Mod.AllCityTemp, NewYearsSet, interval = "predict")
-# Observing the prediction
-View(prediction)
-# Introducing new set of years for forecasting
-NewYearsSet$AvgTemp <- prediction[,1]
-# Adding the values
-PredictedPlot <-bind_rows(AllCityTempSum,NewYearsSet)
-# plotting the linear regression with prediction
-ggplot(data = PredictedPlot, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=3, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
+## Data Examination
+
+```{r}
+# For predictive model we will use GlobalTemperatures data set from period of 1975 to 2010
+gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+# Exploring the structure of data set
+View(gt)
+str(gt)
+summary(gt)
+# Isolating subset of data
+gt <- select(gt, dt, LandAverageTemperature)
+# Renaming column LandAverageTemperature to AvgTemp
+colnames(gt)[2] <-"AvgTemp"
+# Extrapolating subset of data after 1975
+gt$dt <- as.Date(gt$dt)
+gtm <- subset(gt, dt>= "1974-1-12")
+#plotting data
+ggplot(gtm, aes(dt, AvgTemp)) + geom_line() + scale_x_date('Year')  + ylab("Avg. Temperature") + xlab("")
 ```
+
+
+```{r}
+# Removing Outliers
+count_AvgTmp =ts(gtm[c("AvgTemp")])
+gtm$AvgTempClean = tsclean(count_AvgTmp)
+ggplot() +  geom_line(data = gtm, aes(x = dt, y = AvgTempClean)) + ylab('Avg. Temperature')
+```
+
+
+
+```{r}
+# plotting Moving Average per month
+gtm = na.omit(gtm)
+gtm$AvgTempMa = ma(gtm$AvgTempClean, order = 30)
+
+ggplot() +
+  geom_line(data = gtm, aes(x = dt, y = AvgTempClean, colour = "Counts")) +
+  geom_line(data = gtm, aes(x = dt, y = AvgTempMa,   colour = "Monthly Moving Average")) +ylab('AvgTemp')
+
+```
+
+## Decomposing the Data
+
+```{r}
+# Specifying periodicity of data
+AvgTemp_Ma = ts(na.omit(gtm$AvgTempMa), frequency=30)
+# Using stl function for decomposition and forecasting series. 
+decomp = stl(AvgTemp_Ma, s.window="periodic")
+# Removing sesonality
+deseasonal_AvgTemp <- seasadj(decomp)
+plot(decomp)
+
+```
+
+## Stationarity
+
+```{r}
+# Checking for stationarity using Dickey Fuller test
+adf.test(AvgTemp_Ma, alternative = "stationary")
+
+
+```
+##  Autocorrelations and Choosing Model Order
+
+```{r}
+# Autocorrelation plot
+Acf(AvgTemp_Ma, main='')
+# Partial autocorrelation plot
+Pacf(AvgTemp_Ma, main='')
+
+```
+
+The PACF showes spikes on lags 1-8 
+
+```{r}
+AvgTempDif = diff(deseasonal_AvgTemp, differences = 1)
+plot(AvgTempDif)
+adf.test(AvgTempDif, alternative = "stationary")
+
+```
+
+```{r}
+Acf(AvgTempDif, main='ACF for Differenced Series')
+
+Pacf(AvgTempDif, main='PACF for Differenced Series')
+
+
+```
+
+## Fitting an ARIMA model
+
+```{r}
+# Using AutoARIMA to geneter a set of optimal (p,d,q)
+auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
+
+fit <- auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
+tsdisplay(residuals(fit), lag.max=45, main='(1,1,1) Model Residuals')
+
+
+```
+
+## Evaluate and Iterate
+
+
 
 # NASA`s findings on Rapid Climate Change***
 
