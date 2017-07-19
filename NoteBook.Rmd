@@ -110,7 +110,7 @@ Based on the Annual Percent Change Graph bellow, we can see that the average tem
 
 ```{r TempGlobal, echo=TRUE, message=TRUE, warning=TRUE}
 # Loading data set
-GlobalTemperatures <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+#GlobalTemperatures <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
 # Standardizing the date format
 GlobalTemperatures$dt = as.Date(GlobalTemperatures$dt, "%Y-%m-%d" ) 
 # Filtering data range
@@ -165,7 +165,7 @@ The All State Average Temperature trend bellow illustrates the change in global 
 
 ```{R avgtmp, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
-GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByState.csv")
+#GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByState.csv")
 # Formating dates
 GlobalLandTemperaturesByState$dt <- as.Date(GlobalLandTemperaturesByState$dt, "%Y-%m-%d")
 # Filtering data range
@@ -187,7 +187,7 @@ With the given average temperature for every major city, the bar chart below has
 
 ```{r TempByMajorCity, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
-GlTempCity <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
+#GlTempCity <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
 #Formating Data Range
 GlTempCity$dt <- as.Date(GlTempCity$dt, "%Y-%m-%d")
 # Filtering data range
@@ -296,7 +296,7 @@ For Global temperature forecasting I will use ARIMA model within R. ARIMA is an 
 
 ```{r}
 # For predictive model we will use GlobalTemperatures data set from period of 1975 to 2010
-gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+#gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
 # Exploring the structure of data set
 View(gt)
 str(gt)
