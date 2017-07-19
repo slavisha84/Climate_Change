@@ -43,63 +43,69 @@ colnames(gt)[2] <-"AvgTemp"
 # Extrapolating subset of data after 1975
 gt$dt <- as.Date(gt$dt)
 gtm <- subset(gt, dt>= "1974-1-12")
-#plotting data
+# plotting data
 ggplot(gtm, aes(dt, AvgTemp)) + geom_line() + scale_x_date('Year')  + ylab("Avg. Temperature") + xlab("")
 ```
 
+Removing outliers that could bias the model by skewing statistical summaries.
 
 ```{r}
-# Removing Outliers
+# Creating ts set
 count_AvgTmp =ts(gtm[c("AvgTemp")])
+# Passing ts to ts clean function to remove outliers
 gtm$AvgTempClean = tsclean(count_AvgTmp)
+# plotting 
 ggplot() +  geom_line(data = gtm, aes(x = dt, y = AvgTempClean)) + ylab('Avg. Temperature')
 ```
 
-
+Plotting Monthly Moving Average
 
 ```{r}
-# plotting Moving Average per month
+# Removing NAs
 gtm = na.omit(gtm)
+# Getting Monthly Averages
 gtm$AvgTempMa = ma(gtm$AvgTempClean, order = 30)
-
+# Plotting MA
 ggplot() +
   geom_line(data = gtm, aes(x = dt, y = AvgTempClean, colour = "Counts")) +
   geom_line(data = gtm, aes(x = dt, y = AvgTempMa,   colour = "Monthly Moving Average")) +ylab('AvgTemp')
-
 ```
 
 ## Decomposing the Data
 
+In order to break the seasonality, trend or cycle if present in any data to make the forecasting accurate, we are going to use Decomposition of data. 
+
 ```{r}
 # Specifying periodicity of data
 AvgTemp_Ma = ts(na.omit(gtm$AvgTempMa), frequency=30)
-# Using stl function for decomposition and forecasting series. 
+# Using stl function for decomposition and forecasting series 
 decomp = stl(AvgTemp_Ma, s.window="periodic")
 # Removing sesonality
 deseasonal_AvgTemp <- seasadj(decomp)
 plot(decomp)
-
 ```
 
 ## Stationarity
 
+Fitting an ARIMA model requires the series to h ave its mean, variance, and autocovariance time invariant. This is means that series must be stationary. 
+
 ```{r}
 # Checking for stationarity using Dickey Fuller test
 adf.test(AvgTemp_Ma, alternative = "stationary")
-
-
 ```
 ##  Autocorrelations and Choosing Model Order
+
+Bellow, we have ACF and PACF diagrams which will be used to identify corelation between variable and its lags that is not explain by previous lags. We also going to use these diagrams to explore the order of paramtars for ARIMA model. 
 
 ```{r}
 # Autocorrelation plot
 Acf(AvgTemp_Ma, main='')
 # Partial autocorrelation plot
 Pacf(AvgTemp_Ma, main='')
-
 ```
+ The blue lines seen on the plots are 95% significance boundaries.We can see above in PACF plot, there are 3 lags close to 0 that are falling outside the boundary.
 
-The PACF showes spikes on lags 1-8 
+To remove the trend and coerce the data to stationarity we will perform data differencing which look at difference between the value of a time series at a certain point in time and its preceding value. Starting with the order of d = 1 and re-evaluate whether further differencing is needed.
 
 ```{r}
 AvgTempDif = diff(deseasonal_AvgTemp, differences = 1)
@@ -116,23 +122,58 @@ Pacf(AvgTempDif, main='PACF for Differenced Series')
 
 ```
 
+Differencing of d=1 did not perfrom well on this data set. I will perform more iterations with AR or MA models to identify the best model.
+
 ## Fitting an ARIMA model
+
+I am going to use afnction auto.arima() to automatically produce a set of optimal (p, d, q) parameters upon which will the fucntion will searches through the set to pick the right set that optimizes model.
 
 ```{r}
 # Using AutoARIMA to geneter a set of optimal (p,d,q)
 auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
-
 fit <- auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
 tsdisplay(residuals(fit), lag.max=30, main='(1,1,1) Model Residuals')
-
-
 ```
+Since auto.arima did not pefrom as expected i am going manualy to explore set of optimal paramters
 
 ## Evaluate and Iterate
+
+After several iteration of manual order with ARIMA, I identify that (11,1,14) parameters works the best to fit the model. 
 
 ```{r}
 fit2 = arima(deseasonal_AvgTemp, order=c(11,1,14))
 fit2
-tsdisplay(residuals(fit2), lag.max=100, main='Seasonal Model Residuals')
+tsdisplay(residuals(fit2), lag.max=30, main='Seasonal Model Residuals')
+```
 
+## Forecasting
+
+Using the fit2 model we are going to plot the foracasted model for next 100 years
+
+```{r}
+fcast <- forecast(fit2, h=100)
+plot(fcast)
+```
+
+Displaying the Forecast model residuals
+
+```{r}
+tsdisplay(residuals(fcast), lag.max=30, main='Forecast Model Residuals')
+
+```
+
+Bellow is the list of forcasted values for period of 100 years.
+
+```{r}
+# Creating data Set with predictions for next 100 years using Arima Forcast
+# creting  
+Year<-seq(2014,2113,1)
+Yeardf<-as.data.frame(Year)
+fcastarimadf<-as.data.frame(fcast)
+nrow(Yeardf)
+nrow(fcastarimadf)
+# Binding the data data together
+fcastarima1<-cbind(Yeardf,fcastarimadf)
+row.names(fcastarima1)<- NULL
+fcastarima1
 ```

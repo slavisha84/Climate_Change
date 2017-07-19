@@ -1,0 +1,492 @@
+---
+title: "Climate Change Analysis"
+author: "By:Slavoljub Petkovic"
+date: "Jul, 2017"
+output: 
+  html_notebook: 
+    number_sections: yes
+    toc: yes
+---
+
+# Introduction
+
+In the past 4.5 billion years, Earth has gone through numerous climate changes that reshaped its surface and ecosystem, causing extinction and evolution itself. While the Sun is the biggest influence on our climate, the composition of Earth's atmospheric gasses defines how much of the Sun's energy will be trapped under the atmosphere. Ultimately, the principles of thermodynamics while increasing the entropy, will govern the future of the Earth. Infinitesimal changes within a system in the present can cause changes within system in the future with a tremendous magnitude leaving the system incomparable to its primal state.
+
+In this study, I will focus on a few questions related to current climate changes. For the research, I will be using the Data set published on Kaggle.com which contains data with temperature details in the period between 1750 and 2013:
+
+1.	Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
+2.	Global Average Land Temperature by state (GlobalLandTemperaturesByState.csv)
+3.	Global Land Temperatures by major cities (GlobalLandTemperaturesByMajorCity.csv)
+4.	Global Land Temperatures by all cities (GlobalLandTemperaturesByMajorCity.csv)
+
+[Data Location:] (https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data)
+
+Questions of Interest:
+
+1.	What is the measurement problem and uncertainty level within these data sets?
+2.	What is the difference between the land and ocean average temperatures over time?
+3.	How do temperature extremes relate to average temperature?
+4.	What is the temperature trend over all the states/countries in the world?
+5.	What are the top 10 coldest and hottest major cities in the world?
+6.	What are the locations of the coldest vs. hottest major cities?
+7.	How does the average temperature difference look on a global scale?
+8.	What is the temperature trend for a city of residence (Atlanta)?
+9.	What kind of climate can we expect for the next 15 years based on Predictive Analysis?
+10.	Is there active global warming?
+
+# Descriptive Analytics
+
+```{r ilibraries, message=FALSE, warning=FALSE, include=FALSE}
+#installing all requred packages 
+#install.packages(magrittr)
+#install.packages(dplyr)
+#install.packages(tidyr)
+#install.packages(readr)
+#install.packages(ggplot2) 
+#install.packages(reshape2)
+#install.packages(data.table)
+#install.packages(lubridate)
+#install.packages(ggthemes)
+#install.packages(scales)
+#install.packages(grid)
+#install.packages(gridExtra)
+#install.packages(RColorBrewer)
+#install.packages(sp)
+#install.packages(rworldmap)
+#install.packages("forecast")
+#install.packages("tseries")
+
+#Loading all installed packages for this project
+library(magrittr)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(reshape2)
+library(data.table)
+library(lubridate)
+library(ggthemes)
+library(scales)
+library(grid)
+library(gridExtra)
+library(RColorBrewer)
+library(sp)
+library(rworldmap)
+library(forecast)
+library(tseries)
+```
+
+## Temperature Uncertanity for Data used in Descriptive Analytics
+
+With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. These outliers are caued by noise within data received/measured in that period.   
+
+```{r, echo=TRUE}
+# loading data set to explore data uncertainty. Eliminating NA values, standardizing dates and creating data sets for analysis.  
+
+#TempByAllCities <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByCity.csv")
+# Eliminating NAs
+TempByAllCities <- na.omit(TempByAllCities)
+# Converting dt to correct dates
+TempByAllCities$dt <- as.Date(TempByAllCities$dt, "%Y-%m-%d")
+# Filtering data range
+TempByAllCities <- filter(TempByAllCities, dt>= "1849-12-31")
+# Extracting the month out of dt
+TempByAllCities$Month <- month(TempByAllCities$dt)
+# Converting Month number to Month Name
+TempByAllCities$Month <- month(TempByAllCities$Month, label = TRUE)
+# Extracting the year out of dt
+TempByAllCities$Year <- year(TempByAllCities$dt)
+# Converting Lat and Long to correct format
+TempByAllCities$LAT <- as.numeric(gsub("N|E|S|W", "",TempByAllCities$Latitude))*ifelse(grepl("S",TempByAllCities$Latitude),-1,1)
+TempByAllCities$LONG <- as.numeric(gsub("N|E|S|W", "", TempByAllCities$Longitude))*ifelse(grepl("W",TempByAllCities$Longitude),-1,1)
+AvgTempUncert <- TempByAllCities %>% group_by(Year) %>% summarise(AvgTempUnc = mean(AverageTemperatureUncertainty))
+ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
+     geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+```
+
+## Analysis of Global Temperature (Land Vs Ocean)
+
+Based on the Annual Percent Change Graph bellow, we can see that the average temperature of the Ocean has higher amplitude of changes over years than land temperature. Oceans are heating and cooling much faster than land due to the low density of the water. There are a few factors that influneces land temperature changes besides Gulf Stream. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forests will allow larger amounts of greenhouse gases to enter the atmosphere (~15% carbon) and trap the solar rays and heat up the surface that had once been protected by forest. Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
+
+```{r TempGlobal, echo=TRUE, message=TRUE, warning=TRUE}
+# Loading data set
+GlobalTemperatures <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+# Standardizing the date format
+GlobalTemperatures$dt = as.Date(GlobalTemperatures$dt, "%Y-%m-%d" ) 
+# Filtering data range
+GlobalTemperatures <- filter(GlobalTemperatures, dt>= "1849-12-31")
+# Extracting the month out of the dt column in to new Monthviw column
+GlobalTemperatures$Month <- month(GlobalTemperatures$dt)
+# Converting month number in to Month Name
+GlobalTemperatures$Month <- month(GlobalTemperatures$Month, label = TRUE)
+# Extracting the year out of the dt column in to new Year column
+GlobalTemperatures$Year <- year(GlobalTemperatures$dt)
+# Remove rows that contains NA
+GlobalTemperatures <- GlobalTemperatures[!is.na(GlobalTemperatures$LandAndOceanAverageTemperature)  | !is.na(GlobalTemperatures$LandAverageTemperature),]
+# Calculate AverageOcean Temperature
+GlobalTemperatures$OceanAverageTemperature = as.numeric(GlobalTemperatures$LandAndOceanAverageTemperature) * 2 - as.numeric(GlobalTemperatures$LandAverageTemperature)
+# Summerizing temperature on yearly level
+GlobalTemperaturesSummary <- GlobalTemperatures %>% group_by(Year) %>% summarise(AvgLandTmp = mean(LandAverageTemperature), AvgOcnTmp = mean(OceanAverageTemperature))
+# Calculate anual percent change
+GlobalTemperaturesSummary$L.Avg.Tmp.PC <- abs((GlobalTemperaturesSummary$AvgLandTmp/lag(GlobalTemperaturesSummary$AvgLandTmp,1) -1))
+GlobalTemperaturesSummary$L.Avg.Tmp.PC <- paste(round(GlobalTemperaturesSummary$L.Avg.Tmp.PC*100,digits=0))
+GlobalTemperaturesSummary$O.Avg.Tmp.PC <- abs((GlobalTemperaturesSummary$AvgOcnTmp/lag(GlobalTemperaturesSummary$AvgOcnTmp,1) -1))
+GlobalTemperaturesSummary$O.Avg.Tmp.PC <- paste(round(GlobalTemperaturesSummary$O.Avg.Tmp.PC*100,digits=0))
+GTSum <- select(GlobalTemperaturesSummary,Year, L.Avg.Tmp.PC, O.Avg.Tmp.PC)
+GTSum <- na.omit(GTSum)
+GTSum1 <- GTSum[-1,]
+Plot_ds2 <-melt(GTSum1, id="Year")
+# Ploting Avgerage Ocean Temperature and Average Land temperature on timescale
+#Plot_ds <-melt(GlobalTemperaturesSummary, id ="Year")
+ggplot(data= Plot_ds2, aes(x=Year, y= value, group = variable, colour = variable)) + geom_line(size = 1) + ggtitle("Annual Percent Change") +
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+```
+
+##Minimum and Maximum Average Temperature Trends
+
+Analysis of temperature extremes over time require daily maximum and minimum temperature data from stations with records of sufficient length, quality, completeness, and temporal homogeneity. Homogeneity of the daily temperature record is a challenge due to stations experiencing variation in degrees of change over time for particular locations, instrumentation, observing practices, and sitting conditions. On the Min and Max Average Temperature Trend graph below, we can see the amplitudes of change for these extremes. It is clear that both temperature extremes across a century and a half are slightly increasing. the correlation between these extremes is ~90%. 
+
+```{r min max, echo=TRUE}
+# Extracting min and max values 
+GlobalTemperaturesMinMax <- GlobalTemperatures %>% group_by(Year) %>% summarise(AvgMaxTemp = mean(as.numeric(LandMaxTemperature)), AvgMinTemp = mean(as.numeric(LandMinTemperature)))
+# Preparing variable for plot using melt function creating identifier and measured variable.
+Plot_minMAx <-melt(GlobalTemperaturesMinMax, id = "Year")
+# Plotting min and max temperature trend. 
+ggplot(data = Plot_minMAx, aes(Year, value, variable)) + geom_line(size = .5) + geom_smooth(size = 1) + facet_grid(Plot_minMAx$variable ~ ., scales = "free_y") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
+	   ggtitle("Min And Max Average Temperature Trend") +
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+# Runing the coorelation between max and min temperature
+cor(GlobalTemperaturesMinMax$AvgMaxTemp, GlobalTemperaturesMinMax$AvgMinTemp)
+```
+
+## Average Temperature Difference Between 1850 and 2013
+
+The All State Average Temperature trend bellow illustrates the change in global surface temperature relative to 1850-2013 average temperatures. Thirteen of the warmest years in the 163-year record all have occurred since 2000. With a focus on the period between 1975 and 2013 the data shows nearly a 1-degree Celsius increase with respect to data uncertainty.
+
+```{R avgtmp, echo=TRUE, message=FALSE, warning=FALSE}
+# Loading data set
+GlobalLandTemperaturesByState <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByState.csv")
+# Formating dates
+GlobalLandTemperaturesByState$dt <- as.Date(GlobalLandTemperaturesByState$dt, "%Y-%m-%d")
+# Filtering data range
+GlobalLandTemperaturesByState <- filter(GlobalLandTemperaturesByState, dt>= "1849-12-31")
+#  Removing NAs
+GlobalLandTemperaturesByState = na.omit(GlobalLandTemperaturesByState)
+# Extracting Month from dt column in to new  Month column
+GlobalLandTemperaturesByState$Month <- month(GlobalLandTemperaturesByState$dt)
+GlobalLandTemperaturesByState$Year <- year(GlobalLandTemperaturesByState$dt)
+# Extract avg temperature by year
+GlobalTempSummary <- GlobalLandTemperaturesByState %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
+# Creating plot
+ggplot(data = GlobalTempSummary, aes(x = Year, y = AvgTemp, colour = AvgTemp)) + geom_point(shape=16, size =3) + geom_smooth(method = 'loess', color = 'blue', size = 2) + xlab("Years") + ylab("AllAverage Temperature") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("All States Average Temperature Trend") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + aes(Colour = AvgTemp) + scale_color_gradient(low = "blue", high = "red")
+```
+
+## Top 10 Coldest Major Cities between 1850 - 2013
+
+With the given average temperature for every major city, the bar chart below has the top 10 coldest cities in the world with descending rank.
+
+```{r TempByMajorCity, echo=TRUE, message=FALSE, warning=FALSE}
+# Loading data set
+GlTempCity <- read_csv("C:/GIT/R/Data_Source/GlobalLandTemperaturesByMajorCity.csv")
+#Formating Data Range
+GlTempCity$dt <- as.Date(GlTempCity$dt, "%Y-%m-%d")
+# Filtering data range
+GlTempCity <- filter(GlTempCity, dt>= "1849-12-31")
+# Filtering out NAs
+GlTempCity = na.omit(GlTempCity)
+# Extracting the month out of dt
+GlTempCity$Month <- month(GlTempCity$dt)
+# Converting Month number to Month Name
+GlTempCity$Month <- month(GlTempCity$Month, label = TRUE)
+# Extracting the year out of dt
+GlTempCity$Year <- year(GlTempCity$dt)
+# Grouping by City with avg. temperature on average
+GlTempSum <- GlTempCity %>% group_by(City, Longitude, Latitude) %>% summarise(AvgTemp = mean(AverageTemperature))
+# Extracting top 10 hotest city
+Top10Hotest <- head(arrange(GlTempSum, desc(AvgTemp)), n= 10)
+# Extracting top 10 coldest city on average
+Top10Coldest <- head(arrange(GlTempSum, AvgTemp), n = 10)
+# Plotting the the top 10 coldest cities
+ggplot(data = Top10Coldest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="steelblue") + geom_text(aes(label=format(Top10Coldest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Coldest Cities") + ylab("Minimum Avergate Temp in (C)") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("Top 10 Coldest cities between 1850 - 2013") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1))
+```
+
+## Top 10 Hottest Major Cities between 1850 - 2013
+
+While we have a drastic difference within the top 10 coldest major cities in the world, the top 10 hottest cities are very similar in comparison in their average temperature across a century and half.  
+
+```{r hottest cities, echo=TRUE}
+# Plotting the top 10 hottest cities
+ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Hottest Cities") + ylab("Maximum Avergate Temp in (C)") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("Top 10 hottest cities between 1850 - 2013") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
+```
+
+
+## Coldest vs. Hottest Cities on WorldMap
+
+Using longitude and latitude information for the given data, we can plot the location of the top 10 coldest and top 10 hottest cities on the world map. It is interesting to see that all of the coldest cities, with the exception of Santiago, are scattered in the Northern Hemisphere. The top 10 hottest cities are scattered around the Equator. 
+
+```{r worldmap, echo=TRUE}
+# Converting Longitude and latitude in correct format in Top10coldest dataset
+Top10Coldest$LAT <- as.numeric(gsub("N|E|S|W", "",Top10Coldest$Latitude))*ifelse(grepl("S",Top10Coldest$Latitude),-1,1)
+Top10Coldest$LONG <- as.numeric(gsub("N|E|S|W", "", Top10Coldest$Longitude))*ifelse(grepl("W",Top10Coldest$Longitude),-1,1)
+# Converting Longitude and latitude in correct format in Top10Hotest dataset
+Top10Hotest$LAT <- as.numeric(gsub("N|E|S|W", "",Top10Hotest$Latitude))*ifelse(grepl("S",Top10Hotest$Latitude),-1,1)
+Top10Hotest$LONG <- as.numeric(gsub("N|E|S|W", "", Top10Hotest$Longitude))*ifelse(grepl("W",Top10Hotest$Longitude),-1,1)
+# Plottinig the coldest and hottest cities on world map
+mapWorld <- borders("world", colour="black", fill="white") # create a layer of borders
+mp <- ggplot() +   mapWorld
+mp <- mp+ geom_point(aes(x=Top10Coldest$LONG, y=Top10Coldest$LAT) ,color="blue", size=5, alpha = .5) + ggtitle('Coldest Vs Hotest Major Cities between 1850 and 2013') + theme_fivethirtyeight() + xlab("Longitude") + ylab("Latitude") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+mp2 <- ggplot() +   mapWorld
+mp2 <- mp+ geom_point(aes(x=Top10Hotest$LONG, y=Top10Hotest$LAT) ,color="red", size=5, alpha =.5) 
+mp2
+```
+
+## Average Temperature by all Cities
+
+On World Map with average temperature changes, we can see that the most significant temperature increase is measured in develoeped countries. These countries to be the ones who produce most of the greenhouse gasses.
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# Grouping the dataset by Country and City
+TempByAllCitiesSum <- TempByAllCities %>% group_by(Country, City) %>% select(AverageTemperature, City ,LAT, LONG, Country) %>% summarise(avgTemp_start = mean(AverageTemperature), long = mean(LONG), lat = mean(LAT))
+# Focusing on year 2013
+Year2013 <- TempByAllCities %>% filter(Year ==2013)
+Year2013 <- Year2013 %>% group_by(Country,City) %>% select(AverageTemperature,City) %>% summarise(avgTemp_end = mean(AverageTemperature))
+# Getting the final dataset
+finalds <- merge(TempByAllCitiesSum,Year2013, by=c('Country','City'))
+# Ploting the avg. temp difference on map
+worldMap <- fortify(map_data("world"), region = "region")
+m <- ggplot() + geom_map(data = worldMap, map = worldMap,aes(x = long, y = lat, map_id = region, group = group),fill = "white", color = "black", size = 0.1)
+m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.07) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none') + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+```
+
+## Green House Gasses**
+
+**Carbon Dioxide (CO2)**
+
+Carbon Dioxide enters the atmosphere through burning fossil fuels (coal, natural gas, and oil), solid waste, trees and wood products, and also as a result of certain chemical reactions (e.g., manufacture of cement). Carbon Dioxide is removed from the atmosphere (or "sequestered") when it is absorbed by plants as part of the biological carbon cycle.
+
+**Methane (CH4)**
+
+Methane is emitted during the production and transport of coal, natural gas, and oil. Methane emissions also result from livestock and other agricultural practices and by the decay of organic waste in municipal solid waste landfills.
+
+**Nitrous Oxide (N2O)**
+
+Nitrous Oxide is emitted during agricultural and industrial activities, as well as during combustion of fossil fuels and solid waste.
+
+**Fluorinated Gases**
+
+Hydrofluorocarbons, Perfluorocarbons, Sulfur Hexafluoride, and Nitrogen Trifluoride are synthetic, powerful greenhouse gases that are emitted from a variety of industrial processes. Fluorinated gases are sometimes used as substitutes for stratospheric ozone-depleting substances (e.g., chlorofluorocarbons, hydrochlorofluorocarbons, and halons). These gases are typically emitted in smaller quantities, but because they are potent greenhouse gases, they are sometimes referred to as High Global Warming Potential gases ("High GWP gases").
+
+## Average Temperature In Atlanta
+
+Since this is a city of my residence I am going to explore the trend of Average temperature between 1850 and 2013 in Atlanta (Georgia).
+
+```{r, echo=TRUE}
+# Extracting data for Atlanta and ploting on scatter plot 
+ATLTemp <- filter(TempByAllCities, City == "Atlanta")
+ATLTempSum <- ATLTemp %>% group_by(Year) %>% summarise(AvgTemp = mean(AverageTemperature))
+ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geom_smooth(method="loess", color = 'red', size = 2) + labs(title="Average Temperature in Atlanta ", x="Year", y="Avg. Temperature in (C)") +theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+
+```
+
+# Global Temperature Forecasting
+
+For Global temperature forecasting I will use ARIMA model within R. ARIMA is an acronym that stands for AutoRegressive Integrated Moving Average. It is a class of model that captures a suite of different standard temporal structures in time series data.
+
+## Data Examination
+
+```{r}
+# For predictive model we will use GlobalTemperatures data set from period of 1975 to 2010
+gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+# Exploring the structure of data set
+View(gt)
+str(gt)
+summary(gt)
+# Isolating subset of data
+gt <- select(gt, dt, LandAverageTemperature)
+# Renaming column LandAverageTemperature to AvgTemp
+colnames(gt)[2] <-"AvgTemp"
+# Extrapolating subset of data after 1975
+gt$dt <- as.Date(gt$dt)
+gtm <- subset(gt, dt>= "1974-1-12")
+# plotting data
+ggplot(gtm, aes(dt, AvgTemp)) + geom_line() + scale_x_date('Year')  + ylab("Avg. Temperature") + xlab("")
+```
+
+Removing outliers that could bias the model by skewing statistical summaries.
+
+```{r}
+# Creating ts set
+count_AvgTmp =ts(gtm[c("AvgTemp")])
+# Passing ts to ts clean function to remove outliers
+gtm$AvgTempClean = tsclean(count_AvgTmp)
+# plotting 
+ggplot() +  geom_line(data = gtm, aes(x = dt, y = AvgTempClean)) + ylab('Avg. Temperature')
+```
+
+Plotting Monthly Moving Average
+
+```{r}
+# Removing NAs
+gtm = na.omit(gtm)
+# Getting Monthly Averages
+gtm$AvgTempMa = ma(gtm$AvgTempClean, order = 30)
+# Plotting MA
+ggplot() +
+  geom_line(data = gtm, aes(x = dt, y = AvgTempClean, colour = "Counts")) +
+  geom_line(data = gtm, aes(x = dt, y = AvgTempMa,   colour = "Monthly Moving Average")) +ylab('AvgTemp')
+```
+
+## Decomposing the Data
+
+In order to break the seasonality, trend or cycle if present in any data, we are going to use Decomposition process of data. 
+
+```{r}
+# Specifying periodicity of data
+AvgTemp_Ma = ts(na.omit(gtm$AvgTempMa), frequency=30)
+# Using stl function for decomposition and forecasting series 
+decomp = stl(AvgTemp_Ma, s.window="periodic")
+# Removing sesonality
+deseasonal_AvgTemp <- seasadj(decomp)
+plot(decomp)
+```
+Now that we have a de-seasonalized series we can proceed to the Stationarity. 
+
+## Stationarity
+
+Fitting an ARIMA model requires the series to h ave its mean, variance, and autocovariance time invariant. This is means that series must be stationary. 
+
+```{r}
+# Checking for stationarity using Dickey Fuller test
+adf.test(AvgTemp_Ma, alternative = "stationary")
+```
+##  Autocorrelations and Choosing Model Order
+
+Bellow, we have ACF and PACF diagrams which will be used to identify corelation between variable and its lags that is not explain by previous lags. We also going to use these diagrams to explore the order of paramtars for ARIMA model. 
+
+```{r}
+# Autocorrelation plot
+Acf(AvgTemp_Ma, main='')
+# Partial autocorrelation plot
+Pacf(AvgTemp_Ma, main='')
+```
+ The blue lines seen on the plots are 95% significance boundaries.We can see above in PACF plot, there are 3 lags close to 0 that are falling outside the boundary.
+
+To remove the trend and coerce the data to stationarity we will perform data differencing which look at difference between the value of a time series at a certain point in time and its preceding value. Starting with the order of d = 1 and re-evaluate whether further differencing is needed.
+
+```{r}
+AvgTempDif = diff(deseasonal_AvgTemp, differences = 1)
+plot(AvgTempDif)
+adf.test(AvgTempDif, alternative = "stationary")
+
+```
+
+Plotting ACF and PACF diagrams for differenced series. 
+
+```{r}
+Acf(AvgTempDif, main='ACF for Differenced Series')
+
+Pacf(AvgTempDif, main='PACF for Differenced Series')
+
+
+```
+
+Differencing of d=1 did not perfrom well on this data set. I will perform more iterations with AR or MA models to identify the best model.
+
+## Fitting an ARIMA model
+
+I am going to use a function auto.arima() to automatically produce a set of optimal (p, d, q) parameters upon which will the fucntion will searches through the set to pick the right set that optimizes model.
+
+```{r}
+# Using AutoARIMA to geneter a set of optimal (p,d,q)
+auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
+fit <- auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
+tsdisplay(residuals(fit), lag.max=30, main='(1,1,1) Model Residuals')
+```
+Since auto.arima did not pefrom as expected i am going manualy to explore set of optimal paramters
+
+## Evaluate and Iterate
+
+After several iteration of manual order with ARIMA, I identify that (11,1,14) parameters works the best to fit the model. 
+
+```{r}
+fit2 = arima(deseasonal_AvgTemp, order=c(11,1,14))
+fit2
+tsdisplay(residuals(fit2), lag.max=30, main='Seasonal Model Residuals')
+```
+
+## Forecasting
+
+Using the fit2 model we are going to plot the foracasted model for next 100 years
+
+```{r}
+fcast <- forecast(fit2, h=15)
+plot(fcast)
+```
+
+Displaying the Forecast model residuals
+
+```{r}
+tsdisplay(residuals(fcast), lag.max=30, main='Forecast Model Residuals')
+
+```
+
+Bellow is the list of forcasted values for period of 15 years.
+
+```{r}
+# Creating data Set with predictions for next 15 years using Arima Forcast
+# creting  
+Year<-seq(2014,2028,1)
+Yeardf<-as.data.frame(Year)
+fcastarimadf<-as.data.frame(fcast)
+nrow(Yeardf)
+nrow(fcastarimadf)
+# Binding the data data together
+fcastarima1<-cbind(Yeardf,fcastarimadf)
+row.names(fcastarima1)<- NULL
+fcastarima1
+```
+
+# NASA`s findings on Rapid Climate Change***
+
+**Rise of the Sea Level**
+
+In past centruy global sea level rose ~ 8 inches. This rate nearly dobuled in last two decades. 
+
+**Rise of the Ocean Temperature**
+
+
+The oceans have absorbed much of this increased heat, with the top 700 meters (about 2,300 feet) of ocean showing warming of 0.302 degrees Fahrenheit since 1969.
+
+**Shrinking of Ice Sheets**
+
+The Greenland and Antarctic ice sheets have decreased in mass. Data from NASA's Gravity Recovery and Climate Experiment show Greenland lost 150 to 250 cubic kilometers (36 to 60 cubic miles) of ice per year between 2002 and 2006, while Antarctica lost about 152 cubic kilometers (36 cubic miles) of ice between 2002 and 2005.
+
+**Glacial Retreat**
+
+Glaciers are retreating almost everywhere around the world — including in the Alps, Himalayas, Andes, Rockies, Alaska and Africa.
+
+**Ocean Acidification**
+
+Since the beginning of the Industrial Revolution, the acidity of surface ocean waters has increased by about 11,12. This increase is the result of humans emitting more carbon dioxide into the atmosphere and hence more being absorbed into the oceans. The amount of carbon dioxide absorbed by the upper layer of the oceans is increasing by about 2 billion tons per year. 13,14
+
+**Increase of the Global Temperature**
+
+The Earth's climate has changed throughout history. Just in the last 650,000 years there have been seven cycles of glacial advance and retreat, with the abrupt end of the last ice age about 7,000 years ago marking the beginning of the modern climate era — and of human civilization. Most of these climate changes are attributed to very small variations in Earth’s orbit that change the amount of solar energy our planet receives.
+
+
+# Conclusion
+
+Based on conducted analysis, we can see that average temperature trend has highest growth in the past 3 decades. Since this research was not based on analysis of level of Green Gasses emition, I am unable to establish ratio of human influence on global warming versus natural event.  
+While every event in the system in naturaly-logical cosenquence of the even that prior, as a civilization "Type 0" we might not be able to influnece Sun`s radiation spectrum but we can adjust our own behaviour.  
+
+# References
+
+** [EPA:]  (https://www.epa.gov/ghgemissions/overview-greenhouse-gases)
+
+***[NASA:] (https://climate.nasa.gov/evidence/)
+
+
+
+
+
+

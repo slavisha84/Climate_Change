@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-In the past 4.5 billion years, Earth has gone through numerous climate changes that reshaped its surface and ecosystem, causing extinction and evolution itself. While the Sun is the biggest influence on our climate, the composition of Earth's atmospheric gasses defines how much of the Sun's energy will be trapped under the atmosphere. Ultimately the principles of thermodynamics while increasing the entropy, will govern the future of the Earth. Infinitesimal changes within a system in the present can cause changes within system in the future with a tremendous magnitude leaving the system incomparable to its primal state.
+In the past 4.5 billion years, Earth has gone through numerous climate changes that reshaped its surface and ecosystem, causing extinction and evolution itself. While the Sun is the biggest influence on our climate, the composition of Earth's atmospheric gasses defines how much of the Sun's energy will be trapped under the atmosphere. Ultimately, the principles of thermodynamics while increasing the entropy, will govern the future of the Earth. Infinitesimal changes within a system in the present can cause changes within system in the future with a tremendous magnitude leaving the system incomparable to its primal state.
 
 In this study, I will focus on a few questions related to current climate changes. For the research, I will be using the Data set published on Kaggle.com which contains data with temperature details in the period between 1750 and 2013:
 
@@ -45,7 +45,7 @@ Questions of Interest:
 6.	What are the locations of the coldest vs. hottest major cities?
 7.	How does the average temperature difference look on a global scale?
 8.	What is the temperature trend for a city of residence (Atlanta)?
-9.	What kind of climate can we expect for the next 5 years, 10 years, 50 years and 100 years based on Predictive Analysis?
+9.	What kind of climate can we expect for the next 15 years based on Predictive Analysis?
 10.	Is there active global warming?
 
 # Descriptive Analytics
@@ -92,7 +92,7 @@ library(tseries)
 
 ## Temperature Uncertanity for Data used in Descriptive Analytics
 
-With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013.  
+With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. These outliers are caued by noise within data received/measured in that period.   
 
 ```{r, echo=TRUE}
 # loading data set to explore data uncertainty. Eliminating NA values, standardizing dates and creating data sets for analysis.  
@@ -118,20 +118,9 @@ ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
      geom_point(shape=1, size = 3)+ geom_smooth(method="loess", size = 2)+ labs(title="Average Temperature Uncertainty Over Time", x="Year", y="Average Temperature Uncertainty") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
 
-## Exploring Seasons
-
-Using the temperature data set from every city, we are going to explore the seasonality trend for the years between 1850 and 2013. On the Seasonality graph below we can see the average temperature increase over the century and half.
-
-```{r}
-SeasonTrend <- TempByAllCities %>% group_by(Year, Month) %>% summarise(AvgTemp = mean(AverageTemperature))
-SeasonTrendPlot <- ts(SeasonTrend$AvgTemp, start = c(min(SeasonTrend$Year),1), end = c(max(SeasonTrend$Year),12), frequency = 12)
-SeasonTrendPlot <- stl(SeasonTrendPlot, s.window = "period")
-plot(SeasonTrendPlot)
-```
-
 ## Analysis of Global Temperature (Land Vs Ocean)
 
-ased on the Average Temperature Graph bellow, we can see that the average temperature of the land has been significantly increasing with a higher rate than the temperature of the ocean. Oceans are heating and cooling much faster than land due to the low density of the water. There are a few factors that could cause the average land temperature to increase with a higher rate than the ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forests will allow larger amounts of greenhouse gases to enter the atmosphere (~15% carbon) and trap the solar rays and heat up the surface that had once been protected by forest. Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
+Based on the Average Temperature Graph bellow, we can see that the average temperature of the land has been significantly increasing with a higher rate than the temperature of the ocean. Oceans are heating and cooling much faster than land due to the low density of the water. There are a few factors that could cause the average land temperature to increase with a higher rate than the ocean average temperature. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forests will allow larger amounts of greenhouse gases to enter the atmosphere (~15% carbon) and trap the solar rays and heat up the surface that had once been protected by forest. Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
 
 ```{r TempGlobal, echo=TRUE, message=FALSE, warning=FALSE}
 # Loading data set
@@ -235,7 +224,7 @@ While we have a drastic difference within the top 10 coldest major cities in the
 
 ```{r hottest cities, echo=TRUE}
 # Plotting the top 10 hottest cities
-ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Hottest Cities") + ylab("Maximum Avergate Temp in (C)") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("Top 10 hotest cities between 1850 - 2013") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
+ggplot(data = Top10Hotest, aes(x = reorder(City, - AvgTemp), y = AvgTemp)) + geom_bar(stat = "identity", position = "dodge", fill="#FF9999") + geom_text(aes(label=format(Top10Hotest$AvgTemp, digits = 2)), vjust=1.6, color="white", size=3.5) + theme_minimal() + xlab("Hottest Cities") + ylab("Maximum Avergate Temp in (C)") + theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + ggtitle("Top 10 hottest cities between 1850 - 2013") + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + theme(axis.text.x = element_text(size  = 10, angle = 45, hjust = 1, vjust = 1)) + coord_cartesian(ylim = c(0, 40))
 ```
 
 
@@ -274,7 +263,7 @@ finalds <- merge(TempByAllCitiesSum,Year2013, by=c('Country','City'))
 # Ploting the avg. temp difference on map
 worldMap <- fortify(map_data("world"), region = "region")
 m <- ggplot() + geom_map(data = worldMap, map = worldMap,aes(x = long, y = lat, map_id = region, group = group),fill = "white", color = "black", size = 0.1)
-m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.2) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none') + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+m + geom_point(data= finalds,aes(x=long, y=lat, size=avgTemp_end - avgTemp_start,color=avgTemp_end - avgTemp_start),alpha=.07) + theme_fivethirtyeight() + ggtitle('Temperature difference between 1850 and 2013') + theme(axis.text = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + labs(size = '') + scale_color_gradientn(name='Degrees Celsius',colors=rev(brewer.pal(10,'Spectral'))) + scale_size(guide = 'none') + theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
 ```
 
 ## Green House Gasses**
@@ -309,7 +298,7 @@ ggplot(ATLTempSum, aes(x=Year, y=AvgTemp)) + geom_point(shape=1, size = 3) + geo
 
 # Global Temperature Forecasting
 
-For Global temperature forecasting I will use ARIMA model within R. 
+For Global temperature forecasting I will use ARIMA model within R. ARIMA is an acronym that stands for AutoRegressive Integrated Moving Average. It is a class of model that captures a suite of different standard temporal structures in time series data.
 
 ## Data Examination
 
@@ -327,63 +316,70 @@ colnames(gt)[2] <-"AvgTemp"
 # Extrapolating subset of data after 1975
 gt$dt <- as.Date(gt$dt)
 gtm <- subset(gt, dt>= "1974-1-12")
-#plotting data
+# plotting data
 ggplot(gtm, aes(dt, AvgTemp)) + geom_line() + scale_x_date('Year')  + ylab("Avg. Temperature") + xlab("")
 ```
 
+Removing outliers that could bias the model by skewing statistical summaries.
 
 ```{r}
-# Removing Outliers
+# Creating ts set
 count_AvgTmp =ts(gtm[c("AvgTemp")])
+# Passing ts to ts clean function to remove outliers
 gtm$AvgTempClean = tsclean(count_AvgTmp)
+# plotting 
 ggplot() +  geom_line(data = gtm, aes(x = dt, y = AvgTempClean)) + ylab('Avg. Temperature')
 ```
 
-
+Plotting Monthly Moving Average
 
 ```{r}
-# plotting Moving Average per month
+# Removing NAs
 gtm = na.omit(gtm)
+# Getting Monthly Averages
 gtm$AvgTempMa = ma(gtm$AvgTempClean, order = 30)
-
+# Plotting MA
 ggplot() +
   geom_line(data = gtm, aes(x = dt, y = AvgTempClean, colour = "Counts")) +
   geom_line(data = gtm, aes(x = dt, y = AvgTempMa,   colour = "Monthly Moving Average")) +ylab('AvgTemp')
-
 ```
 
 ## Decomposing the Data
 
+In order to break the seasonality, trend or cycle if present in any data, we are going to use Decomposition process of data. 
+
 ```{r}
 # Specifying periodicity of data
 AvgTemp_Ma = ts(na.omit(gtm$AvgTempMa), frequency=30)
-# Using stl function for decomposition and forecasting series. 
+# Using stl function for decomposition and forecasting series 
 decomp = stl(AvgTemp_Ma, s.window="periodic")
 # Removing sesonality
 deseasonal_AvgTemp <- seasadj(decomp)
 plot(decomp)
-
 ```
+Now that we have a de-seasonalized series we can proceed to the Stationarity. 
 
 ## Stationarity
+
+Fitting an ARIMA model requires the series to h ave its mean, variance, and autocovariance time invariant. This is means that series must be stationary. 
 
 ```{r}
 # Checking for stationarity using Dickey Fuller test
 adf.test(AvgTemp_Ma, alternative = "stationary")
-
-
 ```
 ##  Autocorrelations and Choosing Model Order
+
+Bellow, we have ACF and PACF diagrams which will be used to identify corelation between variable and its lags that is not explain by previous lags. We also going to use these diagrams to explore the order of paramtars for ARIMA model. 
 
 ```{r}
 # Autocorrelation plot
 Acf(AvgTemp_Ma, main='')
 # Partial autocorrelation plot
 Pacf(AvgTemp_Ma, main='')
-
 ```
+ The blue lines seen on the plots are 95% significance boundaries.We can see above in PACF plot, there are 3 lags close to 0 that are falling outside the boundary.
 
-The PACF showes spikes on lags 1-8 
+To remove the trend and coerce the data to stationarity we will perform data differencing which look at difference between the value of a time series at a certain point in time and its preceding value. Starting with the order of d = 1 and re-evaluate whether further differencing is needed.
 
 ```{r}
 AvgTempDif = diff(deseasonal_AvgTemp, differences = 1)
@@ -391,6 +387,8 @@ plot(AvgTempDif)
 adf.test(AvgTempDif, alternative = "stationary")
 
 ```
+
+Plotting ACF and PACF diagrams for differenced series. 
 
 ```{r}
 Acf(AvgTempDif, main='ACF for Differenced Series')
@@ -400,21 +398,61 @@ Pacf(AvgTempDif, main='PACF for Differenced Series')
 
 ```
 
+Differencing of d=1 did not perfrom well on this data set. I will perform more iterations with AR or MA models to identify the best model.
+
 ## Fitting an ARIMA model
+
+I am going to use a function auto.arima() to automatically produce a set of optimal (p, d, q) parameters upon which will the fucntion will searches through the set to pick the right set that optimizes model.
 
 ```{r}
 # Using AutoARIMA to geneter a set of optimal (p,d,q)
 auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
-
 fit <- auto.arima(deseasonal_AvgTemp, seasonal=FALSE)
-tsdisplay(residuals(fit), lag.max=45, main='(1,1,1) Model Residuals')
-
-
+tsdisplay(residuals(fit), lag.max=30, main='(1,1,1) Model Residuals')
 ```
+Since auto.arima did not pefrom as expected i am going manualy to explore set of optimal paramters
 
 ## Evaluate and Iterate
 
+After several iteration of manual order with ARIMA, I identify that (11,1,14) parameters works the best to fit the model. 
 
+```{r}
+fit2 = arima(deseasonal_AvgTemp, order=c(11,1,14))
+fit2
+tsdisplay(residuals(fit2), lag.max=30, main='Seasonal Model Residuals')
+```
+
+## Forecasting
+
+Using the fit2 model we are going to plot the foracasted model for next 100 years
+
+```{r}
+fcast <- forecast(fit2, h=15)
+plot(fcast)
+```
+
+Displaying the Forecast model residuals
+
+```{r}
+tsdisplay(residuals(fcast), lag.max=30, main='Forecast Model Residuals')
+
+```
+
+Bellow is the list of forcasted values for period of 15 years.
+
+```{r}
+# Creating data Set with predictions for next 15 years using Arima Forcast
+# creting  
+Year<-seq(2014,2028,1)
+Yeardf<-as.data.frame(Year)
+fcastarimadf<-as.data.frame(fcast)
+nrow(Yeardf)
+nrow(fcastarimadf)
+# Binding the data data together
+fcastarima1<-cbind(Yeardf,fcastarimadf)
+row.names(fcastarima1)<- NULL
+fcastarima1
+```
 
 # NASA`s findings on Rapid Climate Change***
 
