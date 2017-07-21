@@ -78,7 +78,7 @@ library(tseries)
 
 ## Temperature Uncertanity for Data used in Descriptive Analytics
 
-With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. These outliers are caued by noise within data received/measured in that period.   
+With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% to below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. These outliers are caued by noise within data received/measured in that period.   
 
 ```{r, echo=TRUE}
 # loading data set to explore data uncertainty. Eliminating NA values, standardizing dates and creating data sets for analysis.  
@@ -106,7 +106,8 @@ ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
 
 ## Analysis of Global Temperature (Land Vs Ocean)
 
-Based on the Annual Percent Change Graph bellow, we can see that the average temperature of the Ocean has higher amplitude of changes over years than land temperature. Oceans are heating and cooling much faster than land due to the low density of the water. There are a few factors that influneces land temperature changes besides Gulf Stream. With rapid deforestation, we reduce absorption of greenhouse gases that fuel global warming. Fewer forests will allow larger amounts of greenhouse gases to enter the atmosphere (~15% carbon) and trap the solar rays and heat up the surface that had once been protected by forest. Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
+Based on the Annual Percent Change Graph bellow, we can see that the average temperature of the Ocean has higher amplitude of changes over years than land temperature. Oceans are heating and cooling much faster than land due to water`s lower density. There are few key factors that influence land temperature changes, besides the Gulf stream.WWith Rapid deforestation, we reduce the enviroment's capacity to absorb the greenhouse gases that fuel global warming. Fewer forests allow elevated level of these gases to enter the atmosphere (~15% carbon) adn trap solar rays, thereon heating up the surface that once been protected by the forest. 
+Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
 
 ```{r TempGlobal, echo=TRUE, message=TRUE, warning=TRUE}
 # Loading data set
@@ -369,9 +370,9 @@ Acf(AvgTemp_Ma, main='')
 # Partial autocorrelation plot
 Pacf(AvgTemp_Ma, main='')
 ```
- The blue lines seen on the plots are 95% significance boundaries.We can see above in PACF plot, there are 3 lags close to 0 that are falling outside the boundary.
+ The blue lines seen on the plots are 95% significance boundaries. We can see above in PACF plot there are 3 lags close to 0 that are falling outside the boundary.
 
-To remove the trend and coerce the data to stationarity we will perform data differencing which look at difference between the value of a time series at a certain point in time and its preceding value. Starting with the order of d = 1 and re-evaluate whether further differencing is needed.
+To remove the trend and coerce the data to stationarity, we will perform data differencing which look at difference between the value of a time series at a certain point in time and its preceding value. Starting with the order of d = 1 and reevaluate whether further differencing is needed.
 
 ```{r}
 AvgTempDif = diff(deseasonal_AvgTemp, differences = 1)
@@ -394,7 +395,7 @@ Differencing of d=1 did not perfrom well on this data set. I will perform more i
 
 ## Fitting an ARIMA model
 
-I am going to use a function auto.arima() to automatically produce a set of optimal (p, d, q) parameters upon which will the fucntion will searches through the set to pick the right set that optimizes model.
+I am going to use the function auto.arima() to automatically produce a set of optimal (p, d, q) parameters upon which will the fucntion will searches through the collection to chose the set that will most optimize the model.
 
 ```{r}
 # Using AutoARIMA to geneter a set of optimal (p,d,q)
@@ -416,7 +417,7 @@ tsdisplay(residuals(fit2), lag.max=30, main='Seasonal Model Residuals')
 
 ## Forecasting
 
-Using the fit2 model we are going to plot the foracasted model for next 100 years
+Using the fit2 model we are going to plot the foracasted model for next 15 years
 
 ```{r}
 fcast <- forecast(fit2, h=15)
@@ -477,7 +478,7 @@ The Earth's climate has changed throughout history. Just in the last 650,000 yea
 # Conclusion
 
 Based on conducted analysis, we can see that average temperature trend has highest growth in the past 3 decades. Since this research was not based on analysis of level of Green Gasses emition, I am unable to establish ratio of human influence on global warming versus natural event. 
-While every event in the system in naturaly-logical cosenquence of the even that prior, as a civilization "Type 0" we might not be able to influnece Sun`s radiation spectrum but we can adjust our own behaviour according the forecasting from studies similar to this one.   
+While every event in the system is the natural cosenquence of preciding events, as a civilization "Type 0" we might not be able to influnece Sun`s radiation spectrum but we can adjust our own behaviour according the forecasting from studies similar to this one.    
 
 # References
 
