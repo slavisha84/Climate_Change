@@ -38,21 +38,21 @@ Questions of Interest:
 
 ```{r ilibraries, message=FALSE, warning=FALSE, include=FALSE}
 #installing all requred packages 
-#install.packages(magrittr)
-#install.packages(dplyr)
-#install.packages(tidyr)
-#install.packages(readr)
-#install.packages(ggplot2) 
-#install.packages(reshape2)
-#install.packages(data.table)
-#install.packages(lubridate)
-#install.packages(ggthemes)
-#install.packages(scales)
-#install.packages(grid)
-#install.packages(gridExtra)
-#install.packages(RColorBrewer)
-#install.packages(sp)
-#install.packages(rworldmap)
+#install.packages("magrittr")
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("readr")
+#install.packages("ggplot2") 
+#install.packages("reshape2")
+#install.packages("data.table")
+#install.packages("lubridate")
+#install.packages("ggthemes")
+#install.packages("scales")
+#install.packages("grid")
+#install.packages("gridExtra")
+#install.packages("RColorBrewer")
+#install.packages("sp")
+#install.packages("rworldmap")
 #install.packages("forecast")
 #install.packages("tseries")
 
@@ -93,7 +93,7 @@ TempByAllCities <- filter(TempByAllCities, dt>= "1849-12-31")
 # Extracting the month out of dt
 TempByAllCities$Month <- month(TempByAllCities$dt)
 # Converting Month number to Month Name
-TempByAllCities$Month <- month(TempByAllCities$Month, label = TRUE)
+TempByAllCities$Month <- month(TempByAllCities$Month)
 # Extracting the year out of dt
 TempByAllCities$Year <- year(TempByAllCities$dt)
 # Converting Lat and Long to correct format
@@ -106,7 +106,7 @@ ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
 
 ## Analysis of Global Temperature (Land Vs Ocean)
 
-Based on the Annual Percent Change Graph bellow, we can see that the average temperature of the Ocean has higher amplitude of changes over years than land temperature. Oceans are heating and cooling much faster than land due to water`s lower density. There are few key factors that influence land temperature changes, besides the Gulf stream.WWith Rapid deforestation, we reduce the enviroment's capacity to absorb the greenhouse gases that fuel global warming. Fewer forests allow elevated level of these gases to enter the atmosphere (~15% carbon) adn trap solar rays, thereon heating up the surface that once been protected by the forest. 
+Based on the Annual Percent Change Graph bellow, we can see that the average temperature of the land has higher amplitude of changes over years than ocean temperature. Oceans are heating and cooling much faster than land due to water`s lower density. There are few key factors that influence land temperature changes, besides the Gulf stream.WWith Rapid deforestation, we reduce the enviroment's capacity to absorb the greenhouse gases that fuel global warming. Fewer forests allow elevated level of these gases to enter the atmosphere (~15% carbon) adn trap solar rays, thereon heating up the surface that once been protected by the forest. 
 Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
 
 ```{r TempGlobal, echo=TRUE, message=TRUE, warning=TRUE}
@@ -140,7 +140,10 @@ Plot_ds2 <-melt(GTSum1, id="Year")
 # Ploting Avgerage Ocean Temperature and Average Land temperature on timescale
 #Plot_ds <-melt(GlobalTemperaturesSummary, id ="Year")
 ggplot(data= Plot_ds2, aes(x=Year, y= value, group = variable, colour = variable)) + geom_line(size = 1) + ggtitle("Annual Percent Change") +
-	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))+ coord_cartesian(ylim = c(0, 10)) + xlab("Years") + ylab("Average Temperature") +
+	   theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + facet_grid(Plot_ds2$variable ~., scales = "free_y") + theme(legend.position="none")
+
 ```
 
 ##Minimum and Maximum Average Temperature Trends

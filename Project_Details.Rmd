@@ -1,7 +1,7 @@
 ---
 title: "Climate Change Analysis"
 author: "By:Slavoljub Petkovic"
-date: "Jun, 2017"
+date: "Jul, 2017"
 output:
   html_document:
     fig_height: 4.5
@@ -78,7 +78,6 @@ library(readr)
 library(ggplot2)
 library(reshape2)
 library(data.table)
-library(lubridate)
 library(ggthemes)
 library(scales)
 library(grid)
@@ -88,11 +87,12 @@ library(sp)
 library(rworldmap)
 library(forecast)
 library(tseries)
+library(lubridate)
 ```
 
 ## Temperature Uncertanity for Data used in Descriptive Analytics
 
-With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. These outliers are caued by noise within data received/measured in that period.   
+With given sets of data, we have a level of uncertainty due to imperfections in measurements and collection of the average temperature. Based on graph below we can see that between 1850 and 1975 we have a decline of uncertainty from 1.5% to below 0.5%. The reliability of data stabilizes from 1975 with the exception to two outliers in 2013. These outliers are caued by noise within data received/measured in that period.   
 
 ```{r, echo=TRUE}
 # loading data set to explore data uncertainty. Eliminating NA values, standardizing dates and creating data sets for analysis.  
