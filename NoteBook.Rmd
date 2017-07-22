@@ -12,7 +12,7 @@ output:
 
 In the past 4.5 billion years, Earth has gone through numerous climate changes that reshaped its surface and ecosystem, causing extinction and evolution itself. While the Sun is the biggest influence on our climate, the composition of Earth's atmospheric gasses defines how much of the Sun's energy will be trapped under the atmosphere. Ultimately, the principles of thermodynamics while increasing the entropy, will govern the future of the Earth. Infinitesimal changes within a system in the present can cause changes within system in the future with a tremendous magnitude leaving the system incomparable to its primal state.
 
-In this study, I will focus on a few questions related to current climate changes. For the research, I will be using the Data set published on Kaggle.com which contains data with temperature details in the period between 1750 and 2013:
+In this study, I will focus on a few questions related to current climate changes. For the research, I will be using the Data set published on Kaggle.com which contains data with temperature details in the period between 1750 and 2013: 
 
 1.	Global Average Land Temperature by Country (GlobalLandTemperaturesByCountry.csv)
 2.	Global Average Land Temperature by state (GlobalLandTemperaturesByState.csv)
@@ -300,9 +300,8 @@ For Global temperature forecasting I will use ARIMA model within R. ARIMA is an 
 
 ```{r}
 # For predictive model we will use GlobalTemperatures data set from period of 1975 to 2010
-#gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
 # Exploring the structure of data set
-View(gt)
 str(gt)
 summary(gt)
 # Isolating subset of data
