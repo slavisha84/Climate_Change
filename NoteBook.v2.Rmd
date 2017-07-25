@@ -24,7 +24,7 @@ In this study, I will focus on a few questions related to current climate change
 Questions of Interest:
 
 1.	What is the measurement problem and uncertainty level within these data sets?
-2.	What is the difference between the land and ocean average temperatures over time?
+2.	What is the difference between the land and ocean average temperature percent change over time?
 3.	How do temperature extremes relate to average temperature?
 4.	What is the temperature trend over all the states/countries in the world?
 5.	What are the top 10 coldest and hottest major cities in the world?
@@ -38,23 +38,23 @@ Questions of Interest:
 
 ```{r ilibraries, message=FALSE, warning=FALSE, include=FALSE}
 #installing all requred packages 
-#install.packages("magrittr")
-#install.packages("dplyr")
-#install.packages("tidyr")
-#install.packages("readr")
-#install.packages("ggplot2") 
-#install.packages("reshape2")
-#install.packages("data.table")
-#install.packages("lubridate")
-#install.packages("ggthemes")
-#install.packages("scales")
-#install.packages("grid")
-#install.packages("gridExtra")
-#install.packages("RColorBrewer")
-#install.packages("sp")
-#install.packages("rworldmap")
-#install.packages("forecast")
-#install.packages("tseries")
+install.packages("magrittr")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("readr")
+install.packages("ggplot2") 
+install.packages("reshape2")
+install.packages("data.table")
+install.packages("lubridate")
+install.packages("ggthemes")
+install.packages("scales")
+install.packages("grid")
+install.packages("gridExtra")
+install.packages("RColorBrewer")
+install.packages("sp")
+install.packages("rworldmap")
+install.packages("forecast")
+install.packages("tseries")
 
 #Loading all installed packages for this project
 library(magrittr)
@@ -109,6 +109,8 @@ ggplot(AvgTempUncert,aes(x= Year,y= AvgTempUncert$AvgTempUnc))+
 Based on the Annual Percent Change Graph bellow, we can see that the average temperature of the land has higher amplitude of changes over years than ocean temperature. Oceans are heating and cooling much faster than land due to water`s lower density. There are few key factors that influence land temperature changes, besides the Gulf stream.WWith Rapid deforestation, we reduce the enviroment's capacity to absorb the greenhouse gases that fuel global warming. Fewer forests allow elevated level of these gases to enter the atmosphere (~15% carbon) adn trap solar rays, thereon heating up the surface that once been protected by the forest. 
 Industrial effects within developed and developing countries plays a significant role where emission of greenhouse gasses (CO and CO2) directly influences speed and severity of the temperature in those regions and globally as well. The United States constitutes 5% of the world population and contributes 22% of the world’s carbon emission.
 
+***Note: The Y-scale on the graphs bellow have different scales.***
+
 ```{r TempGlobal, echo=TRUE, message=TRUE, warning=TRUE}
 # Loading data set
 #GlobalTemperatures <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
@@ -129,20 +131,30 @@ GlobalTemperatures$OceanAverageTemperature = as.numeric(GlobalTemperatures$LandA
 # Summerizing temperature on yearly level
 GlobalTemperaturesSummary <- GlobalTemperatures %>% group_by(Year) %>% summarise(AvgLandTmp = mean(LandAverageTemperature), AvgOcnTmp = mean(OceanAverageTemperature))
 # Calculate anual percent change
-GlobalTemperaturesSummary$L.Avg.Tmp.PC <- abs((GlobalTemperaturesSummary$AvgLandTmp/lag(GlobalTemperaturesSummary$AvgLandTmp,1) -1))
-GlobalTemperaturesSummary$L.Avg.Tmp.PC <- paste(round(GlobalTemperaturesSummary$L.Avg.Tmp.PC*100,digits=0))
-GlobalTemperaturesSummary$O.Avg.Tmp.PC <- abs((GlobalTemperaturesSummary$AvgOcnTmp/lag(GlobalTemperaturesSummary$AvgOcnTmp,1) -1))
-GlobalTemperaturesSummary$O.Avg.Tmp.PC <- paste(round(GlobalTemperaturesSummary$O.Avg.Tmp.PC*100,digits=0))
-GTSum <- select(GlobalTemperaturesSummary,Year, L.Avg.Tmp.PC, O.Avg.Tmp.PC)
-GTSum <- na.omit(GTSum)
-GTSum1 <- GTSum[-1,]
-Plot_ds2 <-melt(GTSum1, id="Year")
-# Ploting Avgerage Ocean Temperature and Average Land temperature on timescale
-#Plot_ds <-melt(GlobalTemperaturesSummary, id ="Year")
-ggplot(data= Plot_ds2, aes(x=Year, y= value, group = variable, colour = variable)) + geom_line(size = 1) + ggtitle("Annual Percent Change") +
-	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold"))+ coord_cartesian(ylim = c(0, 10)) + xlab("Years") + ylab("Average Temperature") +
-	   theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) +
-	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + facet_grid(Plot_ds2$variable ~., scales = "free_y") + theme(legend.position="none")
+GlobalTemperaturesSummary$L.Avg.Tmp.PC <- (GlobalTemperaturesSummary$AvgLandTmp/lag(GlobalTemperaturesSummary$AvgLandTmp,1) -1)
+GlobalTemperaturesSummary$L.Avg.Tmp.PC <- paste(round(GlobalTemperaturesSummary$L.Avg.Tmp.PC*100,digits=1))
+GlobalTemperaturesSummary$O.Avg.Tmp.PC <- (GlobalTemperaturesSummary$AvgOcnTmp/lag(GlobalTemperaturesSummary$AvgOcnTmp,1) -1)
+GlobalTemperaturesSummary$O.Avg.Tmp.PC <- paste(round(GlobalTemperaturesSummary$O.Avg.Tmp.PC*100,digits=1))
+GTSumL <- select(GlobalTemperaturesSummary,Year, L.Avg.Tmp.PC)
+GTSumO <- select(GlobalTemperaturesSummary,Year, O.Avg.Tmp.PC)
+GTSumL <- na.omit(GTSumL)
+GTSumO <- na.omit(GTSumO)
+GTSumL <- GTSumL[-1,]
+GTSumO <- GTSumO[-1,]
+# Converting numeric Values
+GTSumL$L.Avg.Tmp.PC <- as.numeric(as.character(GTSumL$L.Avg.Tmp.PC))
+GTSumO$O.Avg.Tmp.PC <- as.numeric(as.character(GTSumO$O.Avg.Tmp.PC))
+Plot_L <-melt(GTSumL, id="Year")
+Plot_O <-melt(GTSumO, id="Year")
+# plotting land anual percent change
+ggplot(data= Plot_L, aes(x=Year, y= value, group = variable, colour = variable)) + geom_line(size = 1) + ggtitle("Annual Percent Change") +
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + xlab("Years") + ylab("Percent Change") +
+	   theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(legend.position="none") + scale_y_continuous(breaks=seq(-8, 8,1))
+
+# plotting ocean anual percent change
+ggplot(data= Plot_O, aes(x=Year, y= value, group = variable)) + geom_line(color = 'blue',size = 1) + ggtitle("Annual Percent Change") +
+	   theme(plot.title = element_text(size = 15, lineheight=.8, face="bold")) + xlab("Years") + ylab("Percent Change") +
+	   theme(axis.title = element_text(size = 13), axis.text = element_text(size = 13)) + theme(legend.position="none")
 
 ```
 
@@ -300,7 +312,7 @@ For Global temperature forecasting I will use ARIMA model within R. ARIMA is an 
 
 ```{r}
 # For predictive model we will use GlobalTemperatures data set from period of 1975 to 2010
-gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
+#gt <- read_csv("C:/GIT/R/Data_Source/GlobalTemperatures.csv")
 # Exploring the structure of data set
 str(gt)
 summary(gt)
